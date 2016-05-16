@@ -1,0 +1,19 @@
+[package]
+name = "scurry"
+version = "0.1.0"
+authors = ["bsundsrud <benn.sundsrud@gmail.com>"]
+
+[lib]
+name = "scurry"
+path = "lib/lib.rs"
+
+[[bin]]
+name = "scurry"
+path = "src/main.rs"
+
+[dependencies]
+postgres = { version = "*", features = ["chrono"] }
+chrono = "*"
+env_logger = "*"
+log = "*"
+sha1 = "*"
