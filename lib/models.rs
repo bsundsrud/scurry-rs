@@ -3,6 +3,8 @@ use postgres::Connection;
 use postgres::rows::Row;
 use postgres::error::Error;
 use std::convert::From;
+use versions::Version;
+use error::ScurryError;
 
 const METADATA_EXISTS: &'static str = "SELECT EXISTS (
     SELECT 1 FROM pg_catalog.pg_class c
@@ -11,11 +13,13 @@ const METADATA_EXISTS: &'static str = "SELECT EXISTS (
 
 const CREATE_METADATA_TABLE: &'static str = "CREATE TABLE _scurry (
     id serial,
-    migration_date TIMESTAMP NOT NULL,
+    migration_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT (now() AT TIME ZONE 'utc'),
     script_hash TEXT NOT NULL,
     script_name TEXT NOT NULL,
     script_version TEXT NOT NULL
 );";
+
+const INSERT_HISTORY_LINE: &'static str = "INSERT INTO _scurry(script_hash, script_name, script_version) values($1, $2, $3);";
 
 const GET_ALL_REVISIONS: &'static str = "SELECT id, migration_date, script_hash, script_name, script_version FROM _scurry ORDER BY script_version ASC;";
 
@@ -72,4 +76,9 @@ impl DbHistory {
     pub fn latest_version(&self) -> Option<&ScurryMetadata> {
         self.version_history.iter().last()
     }
+}
+
+pub fn write_history_line(conn: &Connection, version: &Version) -> Result<(), ScurryError> {
+    try!(conn.execute(INSERT_HISTORY_LINE, &[&version.hash, &version.name, &version.version]));
+    Ok(())
 }
