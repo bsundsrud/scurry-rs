@@ -6,4 +6,6 @@ if [ -z "$DATA_DIR" ]; then
 fi
 pg_ctl init -D "$DATA_DIR"
 ./start_postgres.sh
+sleep 1
 createdb $(whoami)
+createdb scurry_test

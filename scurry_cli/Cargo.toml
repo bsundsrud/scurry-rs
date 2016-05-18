@@ -1,0 +1,14 @@
+[package]
+name = "scurry_cli"
+version = "0.1.0"
+authors = ["bsundsrud <benn.sundsrud@gmail.com>"]
+
+[[bin]]
+name = "scurry"
+
+[dependencies]
+scurry = { path = "../scurry", features = ["postgres", "sqlite"] }
+postgres = { version = "*", features = ["openssl"] }
+rusqlite = { git = "https://github.com/jgallagher/rusqlite" }
+log = "*"
+clap = "*"

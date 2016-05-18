@@ -17,7 +17,7 @@ SELECT EXISTS (
 const CREATE_METADATA_TABLE: &'static str = "
 CREATE TABLE _scurry (
     id serial,
-    migration_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT (now() AT TIME ZONE 'utc'),
+    migration_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (now() AT TIME ZONE 'utc'),
     script_hash TEXT NOT NULL,
     script_name TEXT NOT NULL,
     script_version TEXT NOT NULL

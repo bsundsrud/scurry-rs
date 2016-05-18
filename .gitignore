@@ -3,3 +3,4 @@ Cargo.lock
 pg/data
 pg/logs
 migrations/
+.DS_Store
