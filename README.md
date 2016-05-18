@@ -23,3 +23,6 @@ SUBCOMMANDS:
     sqlite      Migrate Sqlite DB
 ```
 
+# License
+
+This project is dual licensed under MIT or Apache 2.0 at your option.
