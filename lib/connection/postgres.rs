@@ -70,7 +70,7 @@ impl<'a> PostgresScurryConnection<'a> {
 
 impl<'a> ScurryConnection for PostgresScurryConnection<'a> {
     fn create_metadata_table(&self) -> Result<(), ScurryError> {
-        try!(self.xact.execute(CREATE_METADATA_TABLE, &[]));
+        try!(self.xact.batch_execute(CREATE_METADATA_TABLE));
         info!("Metadata table created");
         Ok(())
     }
@@ -78,7 +78,7 @@ impl<'a> ScurryConnection for PostgresScurryConnection<'a> {
     fn apply_migration(&self, version: &Version) -> Result<(), ScurryError> {
         let xact = try!(self.xact.transaction());
         let contents = try!(util::get_file_contents(&version.path));
-        try!(self.xact.execute(&contents, &[]));
+        try!(self.xact.batch_execute(&contents));
         try!(self.write_history_line(&version));
         try!(xact.commit());
         Ok(())
