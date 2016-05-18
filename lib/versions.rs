@@ -32,5 +32,5 @@ impl Ord for Version {
 #[derive(Debug)]
 pub enum DesiredVersion {
     Latest,
-    Specific(String)
+    Specific(String),
 }

@@ -7,43 +7,40 @@ extern crate log;
 mod error;
 mod models;
 mod versions;
-mod migrations;
+mod util;
+pub mod connection;
 
-use postgres::Connection;
+use connection::ScurryConnection;
 use error::ScurryError;
 
 pub use versions::{Version, DesiredVersion};
 
-
-pub fn migrate(conn: &Connection, migrations_dir: &str, desired_version: DesiredVersion) -> Result<(), ScurryError> {
-    let versions = try!(migrations::calculate_available_versions(migrations_dir));
+pub fn migrate(conn: &ScurryConnection,
+               migrations_dir: &str,
+               desired_version: DesiredVersion)
+               -> Result<usize, ScurryError> {
+    let versions = try!(util::calculate_available_versions(migrations_dir));
     info!("Found {} migrations.", versions.len());
-    let mut res = try!(models::ScurryMetadata::get_all(conn));
-    if let None = res {
-        try!(models::ScurryMetadata::create_metadata_table(&conn));
-        res = try!(models::ScurryMetadata::get_all(conn));
-    }
-    if let Some(history) = res {
-        try!(migrations::verify_common_history(&versions, &history.version_history));
-        let latest_version = history.latest_version();
-        match latest_version {
-            None => {
-                info!("No existing versions found.");
-            },
-            Some(rev) => {
-                info!("Schema at version {}", rev.script_version);
-            }
+    let history = try!(conn.get_history());
+    try!(util::verify_common_history(&versions, &history));
+    let latest_version = history.iter().last();
+    match latest_version {
+        None => {
+            info!("No existing versions found.");
         }
-        let upgrade_path = migrations::choose_upgrade_path(&versions, &latest_version, &desired_version);
-        info!("Applying {} migrations.", upgrade_path.len());
-        for v in upgrade_path {
-            info!("Applying version {}...", &v.version);
-            try!(migrations::apply_version(&conn, &v));
-            info!("Applied version {}.", &v.version);
+        Some(rev) => {
+            info!("Schema at version {}", rev.script_version);
         }
-    } else {
-        return Err(ScurryError::Consistency("Could not create metadata table".into()));
     }
 
-    Ok(())
+    let upgrade_path = util::choose_upgrade_path(&versions, &latest_version, &desired_version);
+    let upgrade_len = upgrade_path.len();
+    info!("Applying {} migrations.", upgrade_len);
+    for v in upgrade_path {
+        info!("Applying version {}...", &v.version);
+        try!(conn.apply_migration(&v));
+        info!("Applied version {}.", &v.version);
+    }
+
+    Ok(upgrade_len)
 }

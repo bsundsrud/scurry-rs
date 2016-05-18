@@ -1,22 +1,16 @@
 use std::io::Error as IoError;
-use postgres::error::Error as PgError;
+use std::error::Error;
 
 #[derive(Debug)]
 pub enum ScurryError {
     Io(IoError),
     Parse(String),
-    Sql(PgError),
+    Sql(Box<Error>),
     Consistency(String),
 }
 
 impl From<IoError> for ScurryError {
     fn from(e: IoError) -> ScurryError {
         ScurryError::Io(e)
-    }
-}
-
-impl From<PgError> for ScurryError {
-    fn from(e: PgError) -> ScurryError {
-        ScurryError::Sql(e)
     }
 }
