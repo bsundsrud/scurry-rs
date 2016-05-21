@@ -21,7 +21,7 @@ fn get_name_and_version(path: &Path) -> Result<(String, String), ScurryError> {
                 None => return Err(ScurryError::Parse("No string parts".into())),
             };
             let remaining = parts.collect::<Vec<_>>();
-            if remaining.len() == 0 {
+            if remaining.is_empty() {
                 return Err(ScurryError::Parse("Invalid version and name; separate version and \
                                                name with '__'"
                                                   .into()));
@@ -77,20 +77,20 @@ pub fn calculate_available_versions(migrations_dir: &str) -> Result<Vec<Version>
     Ok(res)
 }
 
-pub fn choose_upgrade_path<'a>(available: &'a Vec<Version>,
+pub fn choose_upgrade_path<'a>(available: &'a [Version],
                                installed: &Option<&ScurryMetadata>,
                                desired: &DesiredVersion)
                                -> Vec<&'a Version> {
     available.iter()
              .filter(|v| {
-                 if let &Some(ref installed_vers) = installed {
+                 if let Some(ref installed_vers) = *installed {
                      &v.version > &installed_vers.script_version
                  } else {
                      true
                  }
              })
              .filter(|v| {
-                 if let &DesiredVersion::Specific(ref s) = desired {
+                 if let DesiredVersion::Specific(ref s) = *desired {
                      &v.version <= s
                  } else {
                      true
@@ -100,8 +100,8 @@ pub fn choose_upgrade_path<'a>(available: &'a Vec<Version>,
 
 }
 
-pub fn verify_common_history(available: &Vec<Version>,
-                             installed: &Vec<ScurryMetadata>)
+pub fn verify_common_history(available: &[Version],
+                             installed: &[ScurryMetadata])
                              -> Result<(), ScurryError> {
     let mut avail = available.iter();
     for i in installed {
