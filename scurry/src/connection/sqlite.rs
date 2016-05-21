@@ -22,6 +22,8 @@ const INSERT_HISTORY_LINE: &'static str = "INSERT INTO _scurry(script_hash, scri
 
 const GET_ALL_REVISIONS: &'static str = "SELECT id, migration_date, script_hash, script_name, script_version FROM _scurry ORDER BY script_version ASC;";
 
+const DELETE_HISTORY: &'static str = "DELETE FROM _scurry;";
+
 pub struct SqliteScurryConnection<'a> {
     xact: Transaction<'a>,
 }
@@ -37,6 +39,11 @@ impl<'a> SqliteScurryConnection<'a> {
     fn write_history_line(&self, version: &Version) -> Result<(), ScurryError> {
         try!(self.xact.execute(INSERT_HISTORY_LINE,
                                &[&version.hash, &version.name, &version.version, &UTC::now()]));
+        Ok(())
+    }
+
+    fn clear_history_table(&self) -> Result<(), ScurryError> {
+        try!(self.xact.execute(DELETE_HISTORY, &[]));
         Ok(())
     }
 
@@ -92,6 +99,18 @@ impl<'a> ScurryConnection for SqliteScurryConnection<'a> {
     fn rollback(mut self) -> Result<(), ScurryError> {
         self.xact.set_rollback();
         try!(self.xact.finish());
+        Ok(())
+    }
+
+    fn record_version(&self, version: &Version) -> Result<(), ScurryError> {
+        self.write_history_line(version)
+    }
+
+    fn override_versions(&self, versions: &[&Version]) -> Result<(), ScurryError> {
+        try!(self.clear_history_table());
+        for v in versions {
+            try!(self.write_history_line(v));
+        }
         Ok(())
     }
 }

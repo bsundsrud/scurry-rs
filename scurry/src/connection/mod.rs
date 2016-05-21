@@ -9,8 +9,10 @@ pub mod sqlite;
 
 pub trait ScurryConnection {
     fn apply_migration(&self, version: &Version) -> Result<(), ScurryError>;
+    fn record_version(&self, version: &Version) -> Result<(), ScurryError>;
     fn create_metadata_table(&self) -> Result<(), ScurryError>;
     fn get_history(&self) -> Result<Vec<ScurryMetadata>, ScurryError>;
     fn commit(self) -> Result<(), ScurryError>;
     fn rollback(self) -> Result<(), ScurryError>;
+    fn override_versions(&self, versions: &[&Version]) -> Result<(), ScurryError>;
 }

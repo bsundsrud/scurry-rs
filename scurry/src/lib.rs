@@ -11,8 +11,11 @@ pub mod versions;
 mod util;
 pub mod connection;
 
+pub use util::HistoryDifferences;
+
 use connection::ScurryConnection;
 use error::ScurryError;
+use models::ScurryMetadata;
 
 pub use versions::{Version, DesiredVersion};
 
@@ -43,4 +46,25 @@ pub fn migrate(conn: &ScurryConnection,
     }
 
     Ok(upgrade_len)
+}
+
+pub fn get_differences(conn: &ScurryConnection, migrations_dir: &str) -> Result<Vec<HistoryDifferences>, ScurryError> {
+    let available = try!(util::calculate_available_versions(migrations_dir));
+    let installed = try!(conn.get_history());
+    Ok(util::get_history_differences(&available, &installed))
+}
+
+pub fn get_available_versions(migrations_dir: &str) -> Result<Vec<Version>, ScurryError> {
+    util::calculate_available_versions(migrations_dir)
+}
+
+pub fn get_schema_history(conn: &ScurryConnection) -> Result<Vec<ScurryMetadata>, ScurryError> {
+    conn.get_history()
+}
+
+pub fn set_schema_level(conn: &ScurryConnection, migrations_dir: &str, desired_version: DesiredVersion) -> Result<(), ScurryError> {
+    let versions = try!(util::calculate_available_versions(migrations_dir));
+    let upgrade_path = util::choose_upgrade_path(&versions, &None, &desired_version);
+    try!(conn.override_versions(&upgrade_path));
+    Ok(())
 }

@@ -29,6 +29,8 @@ const GET_ALL_REVISIONS: &'static str = "SELECT id, migration_date, script_hash,
 
 const ACQUIRE_LOCK: &'static str = "LOCK TABLE _scurry IN ACCESS EXCLUSIVE MODE;";
 
+const DELETE_HISTORY: &'static str = "DELETE FROM _scurry;";
+
 pub struct PostgresScurryConnection<'a> {
     xact: Transaction<'a>
 }
@@ -57,6 +59,11 @@ impl<'a> PostgresScurryConnection<'a> {
         }
         try!(self.xact.execute(ACQUIRE_LOCK, &[]));
         info!("Locked table for updating");
+        Ok(())
+    }
+
+    fn clear_history_table(&self) -> Result<(), ScurryError> {
+        try!(self.xact.execute(DELETE_HISTORY, &[]));
         Ok(())
     }
 
@@ -96,6 +103,18 @@ impl<'a> ScurryConnection for PostgresScurryConnection<'a> {
 
     fn rollback(self) -> Result<(), ScurryError> {
         try!(self.xact.finish());
+        Ok(())
+    }
+
+    fn record_version(&self, version: &Version) -> Result<(), ScurryError> {
+        self.write_history_line(version)
+    }
+
+    fn override_versions(&self, versions: &[&Version]) -> Result<(), ScurryError> {
+        try!(self.clear_history_table());
+        for v in versions {
+            try!(self.write_history_line(v));
+        }
         Ok(())
     }
 }

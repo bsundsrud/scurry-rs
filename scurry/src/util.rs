@@ -126,3 +126,27 @@ pub fn verify_common_history(available: &[Version],
     }
     Ok(())
 }
+
+#[derive(Debug)]
+pub enum HistoryDifferences {
+    Missing(Version),
+    HashMismatch(Version),
+    VersionMismatch(Version),
+}
+
+pub fn get_history_differences(available: &[Version], installed: &[ScurryMetadata]) -> Vec<HistoryDifferences> {
+    let mut results = vec![];
+    let mut inst = installed.iter();
+    for a in available {
+        if let Some(sm) = inst.next() {
+            if &sm.script_version != &a.version {
+                results.push(HistoryDifferences::VersionMismatch(a.clone()));
+            } else if &sm.script_hash != &a.hash {
+                results.push(HistoryDifferences::HashMismatch(a.clone()));
+            }
+        } else {
+            results.push(HistoryDifferences::Missing(a.clone()));
+        }
+    }
+    results
+}
