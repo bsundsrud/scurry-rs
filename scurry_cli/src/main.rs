@@ -16,57 +16,6 @@ use scurry::connection::ScurryConnection;
 use scurry::DesiredVersion;
 use scurry::error::ScurryError;
 
-fn get_pg_connection(pg_conn: &PgConnection) -> scurry::connection::postgres::PostgresScurryConnection {
-    match scurry::connection::postgres::PostgresScurryConnection::new(pg_conn) {
-        Ok(conn) => conn,
-        Err(e) => {
-            error!("Failed creating transaction: {:?}", e);
-            std::process::exit(1);
-        }
-    }
-}
-
-fn get_sqlite_connection(sqlite_conn: &mut SqliteConnection) -> scurry::connection::sqlite::SqliteScurryConnection {
-    match scurry::connection::sqlite::SqliteScurryConnection::new(sqlite_conn) {
-        Ok(conn) => conn,
-        Err(e) => {
-            error!("Failed creating transaction: {:?}", e);
-            std::process::exit(1);
-        }
-    }
-}
-
-fn handle_migration_result<T: ScurryConnection>(conn: T, result: Result<usize, ScurryError>) {
-    match result {
-        Ok(migrations) => {
-            if migrations > 0 {
-                info!("Successful migration, committing changes...");
-            }
-            match conn.commit() {
-                Ok(_) => {
-                    info!("Commit successful.");
-                },
-                Err(e) => {
-                    error!("Commit failed! {:?}", e);
-                    std::process::exit(1);
-                }
-            }
-        },
-        Err(e) => {
-            error!("Migration failed! {:?}", e);
-            match conn.rollback() {
-                Ok(_) => {
-                    info!("Successfully rolled back");
-                },
-                Err(e) => {
-                    error!("Rollback failed! {:?}", e);
-                }
-            };
-            std::process::exit(1);
-        }
-    }
-}
-
 fn get_history<T>(conn: &T) where T: ScurryConnection {
     match conn.get_history() {
         Ok(history) => {
@@ -85,8 +34,9 @@ fn get_history<T>(conn: &T) where T: ScurryConnection {
     }
 }
 
-fn override_versions<T>(conn: &T, migrations_dir: &str, desired_version: DesiredVersion) where T: ScurryConnection {
-    match scurry::set_schema_level(conn, migrations_dir, desired_version) {
+fn override_versions<T>(conn: &T, desired_version: DesiredVersion) where T: ScurryConnection {
+
+    match conn.set_schema_level(desired_version) {
         Ok(_) => {
             info!("Schema level set.");
         },
@@ -97,7 +47,7 @@ fn override_versions<T>(conn: &T, migrations_dir: &str, desired_version: Desired
     }
 }
 
-fn do_migration<T>(connection_type: &T, migrations_path: &str, version: DesiredVersion) -> Result<usize, ScurryError>
+fn do_migration<T>(connection_type: &mut T, version: DesiredVersion) -> Result<usize, ScurryError>
 where T: ScurryConnection {
     match version {
         DesiredVersion::Latest => {
@@ -107,7 +57,7 @@ where T: ScurryConnection {
             info!("Target version: {}", s);
         }
     }
-    scurry::migrate(connection_type, migrations_path, version)
+    connection_type.migrate(version)
 }
 
 
@@ -179,67 +129,40 @@ fn main() {
                 std::process::exit(1);
             }
         };
-        let conn = get_pg_connection(&pg_conn);
+        let mut conn = scurry::connection::postgres::establish(pg_conn, migrations_dir);
 
         if let Some(_) = matches.subcommand_matches("migrate") {
-            let res = do_migration(&conn, migrations_dir, version);
-            handle_migration_result(conn, res);
+            if let Err(e) = do_migration(&mut conn, version) {
+                error!("Failed to migrate: {:?}", e);
+                std::process::exit(1);
+            }
+
         } else if let Some(_) = matches.subcommand_matches("history") {
             get_history(&conn);
         } else if let Some(_) = matches.subcommand_matches("mark") {
-            override_versions(&conn, migrations_dir, version);
-            match conn.commit() {
-                Ok(_) => {
-                    info!("Commit successful.");
-                },
-                Err(e) => {
-                    error!("Commit failed! {:?}", e);
-                    std::process::exit(1);
-                }
-            }
+            override_versions(&conn, version);
         }
     } else if let Some(matches) = matches.subcommand_matches("sqlite") {
-        let mut sqlite_conn = match SqliteConnection::open(matches.value_of("path").unwrap()) {
+        let sqlite_conn = match SqliteConnection::open(matches.value_of("path").unwrap()) {
             Ok(conn) => conn,
             Err(e) => {
                 error!("Failed opening sqlite db: {:?}", e);
                 std::process::exit(1);
             }
         };
-        let conn = get_sqlite_connection(&mut sqlite_conn);
+        let mut conn = scurry::connection::sqlite::establish(sqlite_conn, migrations_dir);
         if let Some(_) = matches.subcommand_matches("migrate") {
-            let res = do_migration(&conn, migrations_dir, version);
-            handle_migration_result(conn, res);
+            if let Err(e) = do_migration(&mut conn, version) {
+                error!("Failed migration: {:?}", e);
+                std::process::exit(1);
+            }
         } else if let Some(_) = matches.subcommand_matches("history") {
             get_history(&conn);
         } else if let Some(_) = matches.subcommand_matches("mark") {
-            override_versions(&conn, migrations_dir, version);
-            match conn.commit() {
-                Ok(_) => {
-                    info!("Commit successful.");
-                },
-                Err(e) => {
-                    error!("Commit failed! {:?}", e);
-                    std::process::exit(1);
-                }
-            }
+            override_versions(&conn, version);
         }
     } else if let Some(_) = matches.subcommand_matches("revisions") {
-        match scurry::get_available_versions(migrations_dir) {
-            Ok(versions) => {
-                println!("{:10} {:20} {:40}", "VERSION", "NAME", "HASH");
-                for v in versions {
-                    println!("{:10} {:20} {:40}",
-                        v.version,
-                        v.name,
-                        v.hash);
-                }
-            },
-            Err(e) => {
-                error!("Unable to read revisions: {:?}", e);
-                std::process::exit(1);
-            }
-        }
+        unimplemented!();
     } else {
         unreachable!();
     };
