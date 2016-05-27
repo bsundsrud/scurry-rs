@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Type` enum in crate `postgres`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Type">
+
+    <title>postgres::types::Type - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>postgres</a>::<wbr><a href='index.html'>types</a></p><script>window.sidebarCurrent = {name: 'Type', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content enum">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../index.html'>postgres</a>::<wbr><a href='index.html'>types</a>::<wbr><a class='enum' href=''>Type</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-2900' class='srclink' href='../../src/postgres/types/types.rs.html#8-335' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum Type {
+    Bool,
+    Bytea,
+    Char,
+    Name,
+    Int8,
+    Int2,
+    Int2Vector,
+    Int4,
+    Regproc,
+    Text,
+    Oid,
+    Tid,
+    Xid,
+    Cid,
+    OidVector,
+    PgDdlCommand,
+    PgType,
+    PgAttribute,
+    PgProc,
+    PgClass,
+    Json,
+    Xml,
+    XmlArray,
+    PgNodeTree,
+    JsonArray,
+    Smgr,
+    Point,
+    Lseg,
+    Path,
+    Box,
+    Polygon,
+    Line,
+    LineArray,
+    Cidr,
+    CidrArray,
+    Float4,
+    Float8,
+    Abstime,
+    Reltime,
+    Tinterval,
+    Unknown,
+    Circle,
+    CircleArray,
+    Money,
+    MoneyArray,
+    Macaddr,
+    Inet,
+    BoolArray,
+    ByteaArray,
+    CharArray,
+    NameArray,
+    Int2Array,
+    Int2VectorArray,
+    Int4Array,
+    RegprocArray,
+    TextArray,
+    TidArray,
+    XidArray,
+    CidArray,
+    OidVectorArray,
+    BpcharArray,
+    VarcharArray,
+    Int8Array,
+    PointArray,
+    LsegArray,
+    PathArray,
+    BoxArray,
+    Float4Array,
+    Float8Array,
+    AbstimeArray,
+    ReltimeArray,
+    TintervalArray,
+    PolygonArray,
+    OidArray,
+    Aclitem,
+    AclitemArray,
+    MacaddrArray,
+    InetArray,
+    Bpchar,
+    Varchar,
+    Date,
+    Time,
+    Timestamp,
+    TimestampArray,
+    DateArray,
+    TimeArray,
+    TimestampTZ,
+    TimestampTZArray,
+    Interval,
+    IntervalArray,
+    NumericArray,
+    CstringArray,
+    Timetz,
+    TimetzArray,
+    Bit,
+    BitArray,
+    Varbit,
+    VarbitArray,
+    Numeric,
+    Refcursor,
+    RefcursorArray,
+    Regprocedure,
+    Regoper,
+    Regoperator,
+    Regclass,
+    Regtype,
+    RegprocedureArray,
+    RegoperArray,
+    RegoperatorArray,
+    RegclassArray,
+    RegtypeArray,
+    Record,
+    Cstring,
+    Any,
+    AnyArray,
+    Void,
+    Trigger,
+    LanguageHandler,
+    Internal,
+    Opaque,
+    Anyelement,
+    RecordArray,
+    Anynonarray,
+    TxidSnapshotArray,
+    Uuid,
+    UuidArray,
+    TxidSnapshot,
+    FdwHandler,
+    PgLsn,
+    PgLsnArray,
+    TsmHandler,
+    Anyenum,
+    Tsvector,
+    Tsquery,
+    Gtsvector,
+    TsvectorArray,
+    GtsvectorArray,
+    TsqueryArray,
+    Regconfig,
+    RegconfigArray,
+    Regdictionary,
+    RegdictionaryArray,
+    Jsonb,
+    JsonbArray,
+    Anyrange,
+    EventTrigger,
+    Int4Range,
+    Int4RangeArray,
+    NumRange,
+    NumRangeArray,
+    TsRange,
+    TsRangeArray,
+    TstzRange,
+    TstzRangeArray,
+    DateRange,
+    DateRangeArray,
+    Int8Range,
+    Int8RangeArray,
+    Regnamespace,
+    RegnamespaceArray,
+    Regrole,
+    RegroleArray,
+    Other(<a class='struct' href='../../postgres/types/struct.Other.html' title='postgres::types::Other'>Other</a>),
+}</pre><div class='docblock'><p>A Postgres type.</p>
+</div><h2 class='variants'>Variants</h2>
+<table class='variants_table'><tr><td id='variant.Bool'><code>Bool</code></td><td><div class='docblock'><p>BOOL - boolean, &#39;true&#39;/&#39;false&#39;</p>
+</div></td><td></td></tr><tr><td id='variant.Bytea'><code>Bytea</code></td><td><div class='docblock'><p>BYTEA - variable-length string, binary values escaped</p>
+</div></td><td></td></tr><tr><td id='variant.Char'><code>Char</code></td><td><div class='docblock'><p>CHAR - single character</p>
+</div></td><td></td></tr><tr><td id='variant.Name'><code>Name</code></td><td><div class='docblock'><p>NAME - 63-byte type for storing system identifiers</p>
+</div></td><td></td></tr><tr><td id='variant.Int8'><code>Int8</code></td><td><div class='docblock'><p>INT8 - ~18 digit integer, 8-byte storage</p>
+</div></td><td></td></tr><tr><td id='variant.Int2'><code>Int2</code></td><td><div class='docblock'><p>INT2 - -32 thousand to 32 thousand, 2-byte storage</p>
+</div></td><td></td></tr><tr><td id='variant.Int2Vector'><code>Int2Vector</code></td><td><div class='docblock'><p>INT2VECTOR - array of int2, used in system tables</p>
+</div></td><td></td></tr><tr><td id='variant.Int4'><code>Int4</code></td><td><div class='docblock'><p>INT4 - -2 billion to 2 billion integer, 4-byte storage</p>
+</div></td><td></td></tr><tr><td id='variant.Regproc'><code>Regproc</code></td><td><div class='docblock'><p>REGPROC - registered procedure</p>
+</div></td><td></td></tr><tr><td id='variant.Text'><code>Text</code></td><td><div class='docblock'><p>TEXT - variable-length string, no limit specified</p>
+</div></td><td></td></tr><tr><td id='variant.Oid'><code>Oid</code></td><td><div class='docblock'><p>OID - object identifier&#40;oid&#41;, maximum 4 billion</p>
+</div></td><td></td></tr><tr><td id='variant.Tid'><code>Tid</code></td><td><div class='docblock'><p>TID - &#40;block, offset&#41;, physical location of tuple</p>
+</div></td><td></td></tr><tr><td id='variant.Xid'><code>Xid</code></td><td><div class='docblock'><p>XID - transaction id</p>
+</div></td><td></td></tr><tr><td id='variant.Cid'><code>Cid</code></td><td><div class='docblock'><p>CID - command identifier type, sequence in transaction id</p>
+</div></td><td></td></tr><tr><td id='variant.OidVector'><code>OidVector</code></td><td><div class='docblock'><p>OIDVECTOR - array of oids, used in system tables</p>
+</div></td><td></td></tr><tr><td id='variant.PgDdlCommand'><code>PgDdlCommand</code></td><td><div class='docblock'><p>PG_DDL_COMMAND - internal type for passing CollectedCommand</p>
+</div></td><td></td></tr><tr><td id='variant.PgType'><code>PgType</code></td><td><div class='docblock'><p>PG_TYPE</p>
+</div></td><td></td></tr><tr><td id='variant.PgAttribute'><code>PgAttribute</code></td><td><div class='docblock'><p>PG_ATTRIBUTE</p>
+</div></td><td></td></tr><tr><td id='variant.PgProc'><code>PgProc</code></td><td><div class='docblock'><p>PG_PROC</p>
+</div></td><td></td></tr><tr><td id='variant.PgClass'><code>PgClass</code></td><td><div class='docblock'><p>PG_CLASS</p>
+</div></td><td></td></tr><tr><td id='variant.Json'><code>Json</code></td><td><div class='docblock'><p>JSON</p>
+</div></td><td></td></tr><tr><td id='variant.Xml'><code>Xml</code></td><td><div class='docblock'><p>XML - XML content</p>
+</div></td><td></td></tr><tr><td id='variant.XmlArray'><code>XmlArray</code></td><td><div class='docblock'><p>XML&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.PgNodeTree'><code>PgNodeTree</code></td><td><div class='docblock'><p>PG_NODE_TREE - string representing an internal node tree</p>
+</div></td><td></td></tr><tr><td id='variant.JsonArray'><code>JsonArray</code></td><td><div class='docblock'><p>JSON&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Smgr'><code>Smgr</code></td><td><div class='docblock'><p>SMGR - storage manager</p>
+</div></td><td></td></tr><tr><td id='variant.Point'><code>Point</code></td><td><div class='docblock'><p>POINT - geometric point &#39;&#40;x, y&#41;&#39;</p>
+</div></td><td></td></tr><tr><td id='variant.Lseg'><code>Lseg</code></td><td><div class='docblock'><p>LSEG - geometric line segment &#39;&#40;pt1,pt2&#41;&#39;</p>
+</div></td><td></td></tr><tr><td id='variant.Path'><code>Path</code></td><td><div class='docblock'><p>PATH - geometric path &#39;&#40;pt1,...&#41;&#39;</p>
+</div></td><td></td></tr><tr><td id='variant.Box'><code>Box</code></td><td><div class='docblock'><p>BOX - geometric box &#39;&#40;lower left,upper right&#41;&#39;</p>
+</div></td><td></td></tr><tr><td id='variant.Polygon'><code>Polygon</code></td><td><div class='docblock'><p>POLYGON - geometric polygon &#39;&#40;pt1,...&#41;&#39;</p>
+</div></td><td></td></tr><tr><td id='variant.Line'><code>Line</code></td><td><div class='docblock'><p>LINE - geometric line</p>
+</div></td><td></td></tr><tr><td id='variant.LineArray'><code>LineArray</code></td><td><div class='docblock'><p>LINE&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Cidr'><code>Cidr</code></td><td><div class='docblock'><p>CIDR - network IP address/netmask, network address</p>
+</div></td><td></td></tr><tr><td id='variant.CidrArray'><code>CidrArray</code></td><td><div class='docblock'><p>CIDR&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Float4'><code>Float4</code></td><td><div class='docblock'><p>FLOAT4 - single-precision floating point number, 4-byte storage</p>
+</div></td><td></td></tr><tr><td id='variant.Float8'><code>Float8</code></td><td><div class='docblock'><p>FLOAT8 - double-precision floating point number, 8-byte storage</p>
+</div></td><td></td></tr><tr><td id='variant.Abstime'><code>Abstime</code></td><td><div class='docblock'><p>ABSTIME - absolute, limited-range date and time &#40;Unix system time&#41;</p>
+</div></td><td></td></tr><tr><td id='variant.Reltime'><code>Reltime</code></td><td><div class='docblock'><p>RELTIME - relative, limited-range time interval &#40;Unix delta time&#41;</p>
+</div></td><td></td></tr><tr><td id='variant.Tinterval'><code>Tinterval</code></td><td><div class='docblock'><p>TINTERVAL - &#40;abstime,abstime&#41;, time interval</p>
+</div></td><td></td></tr><tr><td id='variant.Unknown'><code>Unknown</code></td><td><div class='docblock'><p>UNKNOWN</p>
+</div></td><td></td></tr><tr><td id='variant.Circle'><code>Circle</code></td><td><div class='docblock'><p>CIRCLE - geometric circle &#39;&#40;center,radius&#41;&#39;</p>
+</div></td><td></td></tr><tr><td id='variant.CircleArray'><code>CircleArray</code></td><td><div class='docblock'><p>CIRCLE&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Money'><code>Money</code></td><td><div class='docblock'><p>MONEY - monetary amounts, &#36;d,ddd.cc</p>
+</div></td><td></td></tr><tr><td id='variant.MoneyArray'><code>MoneyArray</code></td><td><div class='docblock'><p>MONEY&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Macaddr'><code>Macaddr</code></td><td><div class='docblock'><p>MACADDR - XX:XX:XX:XX:XX:XX, MAC address</p>
+</div></td><td></td></tr><tr><td id='variant.Inet'><code>Inet</code></td><td><div class='docblock'><p>INET - IP address/netmask, host address, netmask optional</p>
+</div></td><td></td></tr><tr><td id='variant.BoolArray'><code>BoolArray</code></td><td><div class='docblock'><p>BOOL&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.ByteaArray'><code>ByteaArray</code></td><td><div class='docblock'><p>BYTEA&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.CharArray'><code>CharArray</code></td><td><div class='docblock'><p>CHAR&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.NameArray'><code>NameArray</code></td><td><div class='docblock'><p>NAME&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Int2Array'><code>Int2Array</code></td><td><div class='docblock'><p>INT2&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Int2VectorArray'><code>Int2VectorArray</code></td><td><div class='docblock'><p>INT2VECTOR&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Int4Array'><code>Int4Array</code></td><td><div class='docblock'><p>INT4&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.RegprocArray'><code>RegprocArray</code></td><td><div class='docblock'><p>REGPROC&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.TextArray'><code>TextArray</code></td><td><div class='docblock'><p>TEXT&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.TidArray'><code>TidArray</code></td><td><div class='docblock'><p>TID&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.XidArray'><code>XidArray</code></td><td><div class='docblock'><p>XID&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.CidArray'><code>CidArray</code></td><td><div class='docblock'><p>CID&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.OidVectorArray'><code>OidVectorArray</code></td><td><div class='docblock'><p>OIDVECTOR&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.BpcharArray'><code>BpcharArray</code></td><td><div class='docblock'><p>BPCHAR&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.VarcharArray'><code>VarcharArray</code></td><td><div class='docblock'><p>VARCHAR&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Int8Array'><code>Int8Array</code></td><td><div class='docblock'><p>INT8&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.PointArray'><code>PointArray</code></td><td><div class='docblock'><p>POINT&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.LsegArray'><code>LsegArray</code></td><td><div class='docblock'><p>LSEG&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.PathArray'><code>PathArray</code></td><td><div class='docblock'><p>PATH&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.BoxArray'><code>BoxArray</code></td><td><div class='docblock'><p>BOX&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Float4Array'><code>Float4Array</code></td><td><div class='docblock'><p>FLOAT4&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Float8Array'><code>Float8Array</code></td><td><div class='docblock'><p>FLOAT8&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.AbstimeArray'><code>AbstimeArray</code></td><td><div class='docblock'><p>ABSTIME&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.ReltimeArray'><code>ReltimeArray</code></td><td><div class='docblock'><p>RELTIME&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.TintervalArray'><code>TintervalArray</code></td><td><div class='docblock'><p>TINTERVAL&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.PolygonArray'><code>PolygonArray</code></td><td><div class='docblock'><p>POLYGON&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.OidArray'><code>OidArray</code></td><td><div class='docblock'><p>OID&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Aclitem'><code>Aclitem</code></td><td><div class='docblock'><p>ACLITEM - access control list</p>
+</div></td><td></td></tr><tr><td id='variant.AclitemArray'><code>AclitemArray</code></td><td><div class='docblock'><p>ACLITEM&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.MacaddrArray'><code>MacaddrArray</code></td><td><div class='docblock'><p>MACADDR&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.InetArray'><code>InetArray</code></td><td><div class='docblock'><p>INET&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Bpchar'><code>Bpchar</code></td><td><div class='docblock'><p>BPCHAR - char&#40;length&#41;, blank-padded string, fixed storage length</p>
+</div></td><td></td></tr><tr><td id='variant.Varchar'><code>Varchar</code></td><td><div class='docblock'><p>VARCHAR - varchar&#40;length&#41;, non-blank-padded string, variable storage length</p>
+</div></td><td></td></tr><tr><td id='variant.Date'><code>Date</code></td><td><div class='docblock'><p>DATE - date</p>
+</div></td><td></td></tr><tr><td id='variant.Time'><code>Time</code></td><td><div class='docblock'><p>TIME - time of day</p>
+</div></td><td></td></tr><tr><td id='variant.Timestamp'><code>Timestamp</code></td><td><div class='docblock'><p>TIMESTAMP - date and time</p>
+</div></td><td></td></tr><tr><td id='variant.TimestampArray'><code>TimestampArray</code></td><td><div class='docblock'><p>TIMESTAMP&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.DateArray'><code>DateArray</code></td><td><div class='docblock'><p>DATE&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.TimeArray'><code>TimeArray</code></td><td><div class='docblock'><p>TIME&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.TimestampTZ'><code>TimestampTZ</code></td><td><div class='docblock'><p>TIMESTAMPTZ - date and time with time zone</p>
+</div></td><td></td></tr><tr><td id='variant.TimestampTZArray'><code>TimestampTZArray</code></td><td><div class='docblock'><p>TIMESTAMPTZ&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Interval'><code>Interval</code></td><td><div class='docblock'><p>INTERVAL - &#64; &lt;number&gt; &lt;units&gt;, time interval</p>
+</div></td><td></td></tr><tr><td id='variant.IntervalArray'><code>IntervalArray</code></td><td><div class='docblock'><p>INTERVAL&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.NumericArray'><code>NumericArray</code></td><td><div class='docblock'><p>NUMERIC&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.CstringArray'><code>CstringArray</code></td><td><div class='docblock'><p>CSTRING&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Timetz'><code>Timetz</code></td><td><div class='docblock'><p>TIMETZ - time of day with time zone</p>
+</div></td><td></td></tr><tr><td id='variant.TimetzArray'><code>TimetzArray</code></td><td><div class='docblock'><p>TIMETZ&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Bit'><code>Bit</code></td><td><div class='docblock'><p>BIT - fixed-length bit string</p>
+</div></td><td></td></tr><tr><td id='variant.BitArray'><code>BitArray</code></td><td><div class='docblock'><p>BIT&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Varbit'><code>Varbit</code></td><td><div class='docblock'><p>VARBIT - variable-length bit string</p>
+</div></td><td></td></tr><tr><td id='variant.VarbitArray'><code>VarbitArray</code></td><td><div class='docblock'><p>VARBIT&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Numeric'><code>Numeric</code></td><td><div class='docblock'><p>NUMERIC - numeric&#40;precision, decimal&#41;, arbitrary precision number</p>
+</div></td><td></td></tr><tr><td id='variant.Refcursor'><code>Refcursor</code></td><td><div class='docblock'><p>REFCURSOR - reference to cursor &#40;portal name&#41;</p>
+</div></td><td></td></tr><tr><td id='variant.RefcursorArray'><code>RefcursorArray</code></td><td><div class='docblock'><p>REFCURSOR&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Regprocedure'><code>Regprocedure</code></td><td><div class='docblock'><p>REGPROCEDURE - registered procedure &#40;with args&#41;</p>
+</div></td><td></td></tr><tr><td id='variant.Regoper'><code>Regoper</code></td><td><div class='docblock'><p>REGOPER - registered operator</p>
+</div></td><td></td></tr><tr><td id='variant.Regoperator'><code>Regoperator</code></td><td><div class='docblock'><p>REGOPERATOR - registered operator &#40;with args&#41;</p>
+</div></td><td></td></tr><tr><td id='variant.Regclass'><code>Regclass</code></td><td><div class='docblock'><p>REGCLASS - registered class</p>
+</div></td><td></td></tr><tr><td id='variant.Regtype'><code>Regtype</code></td><td><div class='docblock'><p>REGTYPE - registered type</p>
+</div></td><td></td></tr><tr><td id='variant.RegprocedureArray'><code>RegprocedureArray</code></td><td><div class='docblock'><p>REGPROCEDURE&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.RegoperArray'><code>RegoperArray</code></td><td><div class='docblock'><p>REGOPER&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.RegoperatorArray'><code>RegoperatorArray</code></td><td><div class='docblock'><p>REGOPERATOR&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.RegclassArray'><code>RegclassArray</code></td><td><div class='docblock'><p>REGCLASS&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.RegtypeArray'><code>RegtypeArray</code></td><td><div class='docblock'><p>REGTYPE&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Record'><code>Record</code></td><td><div class='docblock'><p>RECORD</p>
+</div></td><td></td></tr><tr><td id='variant.Cstring'><code>Cstring</code></td><td><div class='docblock'><p>CSTRING</p>
+</div></td><td></td></tr><tr><td id='variant.Any'><code>Any</code></td><td><div class='docblock'><p>ANY</p>
+</div></td><td></td></tr><tr><td id='variant.AnyArray'><code>AnyArray</code></td><td><div class='docblock'><p>ANYARRAY</p>
+</div></td><td></td></tr><tr><td id='variant.Void'><code>Void</code></td><td><div class='docblock'><p>VOID</p>
+</div></td><td></td></tr><tr><td id='variant.Trigger'><code>Trigger</code></td><td><div class='docblock'><p>TRIGGER</p>
+</div></td><td></td></tr><tr><td id='variant.LanguageHandler'><code>LanguageHandler</code></td><td><div class='docblock'><p>LANGUAGE_HANDLER</p>
+</div></td><td></td></tr><tr><td id='variant.Internal'><code>Internal</code></td><td><div class='docblock'><p>INTERNAL</p>
+</div></td><td></td></tr><tr><td id='variant.Opaque'><code>Opaque</code></td><td><div class='docblock'><p>OPAQUE</p>
+</div></td><td></td></tr><tr><td id='variant.Anyelement'><code>Anyelement</code></td><td><div class='docblock'><p>ANYELEMENT</p>
+</div></td><td></td></tr><tr><td id='variant.RecordArray'><code>RecordArray</code></td><td><div class='docblock'><p>RECORD&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Anynonarray'><code>Anynonarray</code></td><td><div class='docblock'><p>ANYNONARRAY</p>
+</div></td><td></td></tr><tr><td id='variant.TxidSnapshotArray'><code>TxidSnapshotArray</code></td><td><div class='docblock'><p>TXID_SNAPSHOT&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Uuid'><code>Uuid</code></td><td><div class='docblock'><p>UUID - UUID datatype</p>
+</div></td><td></td></tr><tr><td id='variant.UuidArray'><code>UuidArray</code></td><td><div class='docblock'><p>UUID&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.TxidSnapshot'><code>TxidSnapshot</code></td><td><div class='docblock'><p>TXID_SNAPSHOT - txid snapshot</p>
+</div></td><td></td></tr><tr><td id='variant.FdwHandler'><code>FdwHandler</code></td><td><div class='docblock'><p>FDW_HANDLER</p>
+</div></td><td></td></tr><tr><td id='variant.PgLsn'><code>PgLsn</code></td><td><div class='docblock'><p>PG_LSN - PostgreSQL LSN datatype</p>
+</div></td><td></td></tr><tr><td id='variant.PgLsnArray'><code>PgLsnArray</code></td><td><div class='docblock'><p>PG_LSN&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.TsmHandler'><code>TsmHandler</code></td><td><div class='docblock'><p>TSM_HANDLER</p>
+</div></td><td></td></tr><tr><td id='variant.Anyenum'><code>Anyenum</code></td><td><div class='docblock'><p>ANYENUM</p>
+</div></td><td></td></tr><tr><td id='variant.Tsvector'><code>Tsvector</code></td><td><div class='docblock'><p>TSVECTOR - text representation for text search</p>
+</div></td><td></td></tr><tr><td id='variant.Tsquery'><code>Tsquery</code></td><td><div class='docblock'><p>TSQUERY - query representation for text search</p>
+</div></td><td></td></tr><tr><td id='variant.Gtsvector'><code>Gtsvector</code></td><td><div class='docblock'><p>GTSVECTOR - GiST index internal text representation for text search</p>
+</div></td><td></td></tr><tr><td id='variant.TsvectorArray'><code>TsvectorArray</code></td><td><div class='docblock'><p>TSVECTOR&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.GtsvectorArray'><code>GtsvectorArray</code></td><td><div class='docblock'><p>GTSVECTOR&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.TsqueryArray'><code>TsqueryArray</code></td><td><div class='docblock'><p>TSQUERY&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Regconfig'><code>Regconfig</code></td><td><div class='docblock'><p>REGCONFIG - registered text search configuration</p>
+</div></td><td></td></tr><tr><td id='variant.RegconfigArray'><code>RegconfigArray</code></td><td><div class='docblock'><p>REGCONFIG&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Regdictionary'><code>Regdictionary</code></td><td><div class='docblock'><p>REGDICTIONARY - registered text search dictionary</p>
+</div></td><td></td></tr><tr><td id='variant.RegdictionaryArray'><code>RegdictionaryArray</code></td><td><div class='docblock'><p>REGDICTIONARY&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Jsonb'><code>Jsonb</code></td><td><div class='docblock'><p>JSONB - Binary JSON</p>
+</div></td><td></td></tr><tr><td id='variant.JsonbArray'><code>JsonbArray</code></td><td><div class='docblock'><p>JSONB&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Anyrange'><code>Anyrange</code></td><td><div class='docblock'><p>ANYRANGE</p>
+</div></td><td></td></tr><tr><td id='variant.EventTrigger'><code>EventTrigger</code></td><td><div class='docblock'><p>EVENT_TRIGGER</p>
+</div></td><td></td></tr><tr><td id='variant.Int4Range'><code>Int4Range</code></td><td><div class='docblock'><p>INT4RANGE - range of integers</p>
+</div></td><td></td></tr><tr><td id='variant.Int4RangeArray'><code>Int4RangeArray</code></td><td><div class='docblock'><p>INT4RANGE&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.NumRange'><code>NumRange</code></td><td><div class='docblock'><p>NUMRANGE - range of numerics</p>
+</div></td><td></td></tr><tr><td id='variant.NumRangeArray'><code>NumRangeArray</code></td><td><div class='docblock'><p>NUMRANGE&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.TsRange'><code>TsRange</code></td><td><div class='docblock'><p>TSRANGE - range of timestamps without time zone</p>
+</div></td><td></td></tr><tr><td id='variant.TsRangeArray'><code>TsRangeArray</code></td><td><div class='docblock'><p>TSRANGE&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.TstzRange'><code>TstzRange</code></td><td><div class='docblock'><p>TSTZRANGE - range of timestamps with time zone</p>
+</div></td><td></td></tr><tr><td id='variant.TstzRangeArray'><code>TstzRangeArray</code></td><td><div class='docblock'><p>TSTZRANGE&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.DateRange'><code>DateRange</code></td><td><div class='docblock'><p>DATERANGE - range of dates</p>
+</div></td><td></td></tr><tr><td id='variant.DateRangeArray'><code>DateRangeArray</code></td><td><div class='docblock'><p>DATERANGE&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Int8Range'><code>Int8Range</code></td><td><div class='docblock'><p>INT8RANGE - range of bigints</p>
+</div></td><td></td></tr><tr><td id='variant.Int8RangeArray'><code>Int8RangeArray</code></td><td><div class='docblock'><p>INT8RANGE&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Regnamespace'><code>Regnamespace</code></td><td><div class='docblock'><p>REGNAMESPACE - registered namespace</p>
+</div></td><td></td></tr><tr><td id='variant.RegnamespaceArray'><code>RegnamespaceArray</code></td><td><div class='docblock'><p>REGNAMESPACE&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Regrole'><code>Regrole</code></td><td><div class='docblock'><p>REGROLE - registered role</p>
+</div></td><td></td></tr><tr><td id='variant.RegroleArray'><code>RegroleArray</code></td><td><div class='docblock'><p>REGROLE&#91;&#93;</p>
+</div></td><td></td></tr><tr><td id='variant.Other'><code>Other</code></td><td><div class='docblock'><p>An unknown type.</p>
+</div></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class='enum' href='../../postgres/types/enum.Type.html' title='postgres::types::Type'>Type</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-3265' class='srclink' href='../../src/postgres/types/types.rs.html#347-1518' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.from_oid' class='method'><code>fn <a href='#method.from_oid' class='fnname'>from_oid</a>(oid: <a class='type' href='../../postgres/types/type.Oid.html' title='postgres::types::Oid'>Oid</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../postgres/types/enum.Type.html' title='postgres::types::Type'>Type</a>&gt;</code></h4>
+<div class='docblock'><p>Returns the <code>Type</code> corresponding to the provided <code>Oid</code> if it
+corresponds to a built-in type.</p>
+</div><h4 id='method.oid' class='method'><code>fn <a href='#method.oid' class='fnname'>oid</a>(&amp;self) -&gt; <a class='type' href='../../postgres/types/type.Oid.html' title='postgres::types::Oid'>Oid</a></code></h4>
+<div class='docblock'><p>Returns the OID of the <code>Type</code>.</p>
+</div><h4 id='method.kind' class='method'><code>fn <a href='#method.kind' class='fnname'>kind</a>(&amp;self) -&gt; &amp;<a class='enum' href='../../postgres/types/enum.Kind.html' title='postgres::types::Kind'>Kind</a></code></h4>
+<div class='docblock'><p>Returns the kind of this type.</p>
+</div><h4 id='method.schema' class='method'><code>fn <a href='#method.schema' class='fnname'>schema</a>(&amp;self) -&gt; &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a></code></h4>
+<div class='docblock'><p>Returns the schema of this type.</p>
+</div><h4 id='method.name' class='method'><code>fn <a href='#method.name' class='fnname'>name</a>(&amp;self) -&gt; &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a></code></h4>
+<div class='docblock'><p>Returns the name of this type.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html' title='core::fmt::Display'>Display</a> for <a class='enum' href='../../postgres/types/enum.Type.html' title='postgres::types::Type'>Type</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-3256' class='srclink' href='../../src/postgres/types/types.rs.html#337-345' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, fmt: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../postgres/types/enum.Type.html' title='postgres::types::Type'>Type</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-3065' class='srclink' href='../../src/postgres/types/types.rs.html#7' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt-1' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../../postgres/types/enum.Type.html' title='postgres::types::Type'>Type</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-3233' class='srclink' href='../../src/postgres/types/types.rs.html#7' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../../postgres/types/enum.Type.html' title='postgres::types::Type'>Type</a></code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code><div class="since">1.0.0</div></h4>
+</div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='enum' href='../../postgres/types/enum.Type.html' title='postgres::types::Type'>Type</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-3237' class='srclink' href='../../src/postgres/types/types.rs.html#7' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='enum' href='../../postgres/types/enum.Type.html' title='postgres::types::Type'>Type</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-3241' class='srclink' href='../../src/postgres/types/types.rs.html#7' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../../postgres/types/enum.Type.html' title='postgres::types::Type'>Type</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../../postgres/types/enum.Type.html' title='postgres::types::Type'>Type</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "postgres";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

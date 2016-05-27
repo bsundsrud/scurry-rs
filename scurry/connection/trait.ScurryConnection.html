@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `ScurryConnection` trait in crate `scurry`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, ScurryConnection">
+
+    <title>scurry::connection::ScurryConnection - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>scurry</a>::<wbr><a href='index.html'>connection</a></p><script>window.sidebarCurrent = {name: 'ScurryConnection', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>scurry</a>::<wbr><a href='index.html'>connection</a>::<wbr><a class='trait' href=''>ScurryConnection</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-389' class='srclink' href='../../src/scurry/src/connection/mod.rs.html#11-19' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait ScurryConnection: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> {
+    type <a href='#associatedtype.DbConnection' class='type'>DbConnection</a>: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a>;
+    fn <a href='#tymethod.get_history' class='fnname'>get_history</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../../scurry/models/struct.ScurryMetadata.html' title='scurry::models::ScurryMetadata'>ScurryMetadata</a>&gt;, <a class='enum' href='../../scurry/error/enum.ScurryError.html' title='scurry::error::ScurryError'>ScurryError</a>&gt;;
+    fn <a href='#tymethod.override_versions' class='fnname'>override_versions</a>(&amp;self, versions: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>&amp;<a class='struct' href='../../scurry/versions/struct.Version.html' title='scurry::versions::Version'>Version</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../../scurry/error/enum.ScurryError.html' title='scurry::error::ScurryError'>ScurryError</a>&gt;;
+    fn <a href='#tymethod.get_differences' class='fnname'>get_differences</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../../scurry/enum.HistoryDifferences.html' title='scurry::HistoryDifferences'>HistoryDifferences</a>&gt;, <a class='enum' href='../../scurry/error/enum.ScurryError.html' title='scurry::error::ScurryError'>ScurryError</a>&gt;;
+    fn <a href='#tymethod.set_schema_level' class='fnname'>set_schema_level</a>(&amp;self, desired_version: <a class='enum' href='../../scurry/versions/enum.DesiredVersion.html' title='scurry::versions::DesiredVersion'>DesiredVersion</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../../scurry/error/enum.ScurryError.html' title='scurry::error::ScurryError'>ScurryError</a>&gt;;
+    fn <a href='#tymethod.migrate' class='fnname'>migrate</a>(&amp;mut self, desired_version: <a class='enum' href='../../scurry/versions/enum.DesiredVersion.html' title='scurry::versions::DesiredVersion'>DesiredVersion</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='enum' href='../../scurry/error/enum.ScurryError.html' title='scurry::error::ScurryError'>ScurryError</a>&gt;;
+    fn <a href='#tymethod.take_connection' class='fnname'>take_connection</a>(self) -&gt; Self::<a class='trait' href='../../scurry/connection/trait.ScurryConnection.html' title='scurry::connection::ScurryConnection'>DbConnection</a>;
+}</pre>
+            <h2 id='associated-types'>Associated Types</h2>
+            <div class='methods'>
+        <h3 id='associatedtype.DbConnection' class='method stab '><code>type <a href='#associatedtype.DbConnection' class='type'>DbConnection</a>: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a></code></h3></div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.get_history' class='method stab '><code>fn <a href='#tymethod.get_history' class='fnname'>get_history</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../../scurry/models/struct.ScurryMetadata.html' title='scurry::models::ScurryMetadata'>ScurryMetadata</a>&gt;, <a class='enum' href='../../scurry/error/enum.ScurryError.html' title='scurry::error::ScurryError'>ScurryError</a>&gt;</code></h3><h3 id='tymethod.override_versions' class='method stab '><code>fn <a href='#tymethod.override_versions' class='fnname'>override_versions</a>(&amp;self, versions: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>&amp;<a class='struct' href='../../scurry/versions/struct.Version.html' title='scurry::versions::Version'>Version</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../../scurry/error/enum.ScurryError.html' title='scurry::error::ScurryError'>ScurryError</a>&gt;</code></h3><h3 id='tymethod.get_differences' class='method stab '><code>fn <a href='#tymethod.get_differences' class='fnname'>get_differences</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../../scurry/enum.HistoryDifferences.html' title='scurry::HistoryDifferences'>HistoryDifferences</a>&gt;, <a class='enum' href='../../scurry/error/enum.ScurryError.html' title='scurry::error::ScurryError'>ScurryError</a>&gt;</code></h3><h3 id='tymethod.set_schema_level' class='method stab '><code>fn <a href='#tymethod.set_schema_level' class='fnname'>set_schema_level</a>(&amp;self, desired_version: <a class='enum' href='../../scurry/versions/enum.DesiredVersion.html' title='scurry::versions::DesiredVersion'>DesiredVersion</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../../scurry/error/enum.ScurryError.html' title='scurry::error::ScurryError'>ScurryError</a>&gt;</code></h3><h3 id='tymethod.migrate' class='method stab '><code>fn <a href='#tymethod.migrate' class='fnname'>migrate</a>(&amp;mut self, desired_version: <a class='enum' href='../../scurry/versions/enum.DesiredVersion.html' title='scurry::versions::DesiredVersion'>DesiredVersion</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='enum' href='../../scurry/error/enum.ScurryError.html' title='scurry::error::ScurryError'>ScurryError</a>&gt;</code></h3><h3 id='tymethod.take_connection' class='method stab '><code>fn <a href='#tymethod.take_connection' class='fnname'>take_connection</a>(self) -&gt; Self::<a class='trait' href='../../scurry/connection/trait.ScurryConnection.html' title='scurry::connection::ScurryConnection'>DbConnection</a></code></h3></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl ScurryConnection for <a class='struct' href='../../scurry/connection/postgres/struct.Postgres.html' title='scurry::connection::postgres::Postgres'>Postgres</a></code></li>
+</ul><script type="text/javascript" async
+                         src="../../implementors/scurry/connection/trait.ScurryConnection.js">
+                 </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "scurry";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>
