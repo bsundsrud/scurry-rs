@@ -129,7 +129,7 @@ fn main() {
                 std::process::exit(1);
             }
         };
-        let mut conn = scurry::connection::postgres::establish(pg_conn, migrations_dir);
+        let mut conn = scurry::from_postgres(pg_conn, migrations_dir);
 
         if let Some(_) = matches.subcommand_matches("migrate") {
             if let Err(e) = do_migration(&mut conn, version) {
@@ -150,7 +150,7 @@ fn main() {
                 std::process::exit(1);
             }
         };
-        let mut conn = scurry::connection::sqlite::establish(sqlite_conn, migrations_dir);
+        let mut conn = scurry::from_sqlite(sqlite_conn, migrations_dir);
         if let Some(_) = matches.subcommand_matches("migrate") {
             if let Err(e) = do_migration(&mut conn, version) {
                 error!("Failed migration: {:?}", e);
@@ -162,7 +162,18 @@ fn main() {
             override_versions(&conn, version);
         }
     } else if let Some(_) = matches.subcommand_matches("revisions") {
-        unimplemented!();
+        match scurry::get_available_versions(migrations_dir) {
+            Ok(versions) =>  {
+                println!("{:10} {:20} {:40}", "VERSION", "NAME", "HASH");
+                for v in versions {
+                    println!("{:10} {:20} {:40}", &v.version, &v.name, &v.hash);
+                }
+            },
+            Err(e) => {
+                error!("Error reading versions: {:?}", e);
+                std::process::exit(1);
+            }
+        }
     } else {
         unreachable!();
     };

@@ -88,6 +88,7 @@ fn apply_migration(xact: &Transaction, version: &Version) -> Result<(), ScurryEr
 }
 
 impl ScurryConnection for Postgres {
+    type DbConnection = Connection;
 
     fn migrate(&mut self, desired_version: DesiredVersion) -> Result<usize, ScurryError> {
         let versions = try!(util::calculate_available_versions(&self.migrations_dir));
@@ -122,10 +123,6 @@ impl ScurryConnection for Postgres {
         Ok(util::get_history_differences(&available, &installed))
     }
 
-    fn get_available_versions(&self) -> Result<Vec<Version>, ScurryError> {
-        util::calculate_available_versions(&self.migrations_dir)
-    }
-
     fn set_schema_level(&self, desired_version: DesiredVersion) -> Result<(), ScurryError> {
         let versions = try!(util::calculate_available_versions(&self.migrations_dir));
         let upgrade_path = util::choose_upgrade_path(&versions, &None, &desired_version);
@@ -146,6 +143,10 @@ impl ScurryConnection for Postgres {
         }
         try!(xact.commit());
         Ok(())
+    }
+
+    fn take_connection(self) -> Connection {
+        self.conn
     }
 }
 

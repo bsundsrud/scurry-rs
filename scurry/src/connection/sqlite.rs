@@ -70,6 +70,8 @@ fn apply_migration(xact: &mut Connection, version: &Version) -> Result<(), Scurr
 }
 
 impl ScurryConnection for Sqlite {
+    type DbConnection = Connection;
+
     fn migrate(&mut self, desired_version: DesiredVersion) -> Result<usize, ScurryError> {
         let versions = try!(util::calculate_available_versions(&self.migrations_dir));
         info!("Found {} migrations", versions.len());
@@ -102,10 +104,6 @@ impl ScurryConnection for Sqlite {
         let available = try!(util::calculate_available_versions(&self.migrations_dir));
         let installed = try!(self.get_history());
         Ok(util::get_history_differences(&available, &installed))
-    }
-
-    fn get_available_versions(&self) -> Result<Vec<Version>, ScurryError> {
-        util::calculate_available_versions(&self.migrations_dir)
     }
 
     fn set_schema_level(&self, desired_version: DesiredVersion) -> Result<(), ScurryError> {
@@ -145,6 +143,10 @@ impl ScurryConnection for Sqlite {
             try!(write_history_line(&self.conn, v));
         }
         Ok(())
+    }
+
+    fn take_connection(self) -> Connection {
+        self.conn
     }
 }
 
