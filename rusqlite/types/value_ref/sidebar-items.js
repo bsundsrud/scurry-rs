@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["ValueRef","A non-owning dynamic type value. Typically the memory backing this value is owned by SQLite."]]});

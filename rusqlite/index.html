@@ -47,7 +47,7 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-0' class='srclink' href='../src/rusqlite/lib.rs.html#1-1696' title='goto source code'>[src]</a></span></h1>
+               </span><a id='src-0' class='srclink' href='../src/rusqlite/lib.rs.html#1-1649' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>Rusqlite is an ergonomic wrapper for using SQLite from Rust. It attempts to expose
 an interface similar to <a href="https://github.com/sfackler/rust-postgres">rust-postgres</a>.</p>
 
@@ -118,6 +118,13 @@ unifying with Error.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
+                           <td><a class='struct' href='struct.CachedStatement.html'
+                                  title='rusqlite::CachedStatement'>CachedStatement</a></td>
+                           <td class='docblock short'>
+                                <p>Cacheable statement.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
                            <td><a class='struct' href='struct.Connection.html'
                                   title='rusqlite::Connection'>Connection</a></td>
                            <td class='docblock short'>
@@ -150,7 +157,14 @@ See <a href="http://www.sqlite.org/c3ref/open.html">sqlite3_open_v2</a> for deta
                            <td><a class='struct' href='struct.Rows.html'
                                   title='rusqlite::Rows'>Rows</a></td>
                            <td class='docblock short'>
-                                <p>An iterator over the resulting rows of a query.</p>
+                                <p>An handle for the resulting rows of a query.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.Savepoint.html'
+                                  title='rusqlite::Savepoint'>Savepoint</a></td>
+                           <td class='docblock short'>
+                                <p>Represents a savepoint on a database connection.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -173,6 +187,13 @@ See <a href="http://www.sqlite.org/c3ref/open.html">sqlite3_open_v2</a> for deta
                                   title='rusqlite::DatabaseName'>DatabaseName</a></td>
                            <td class='docblock short'>
                                 <p>Name for a database within a SQLite connection.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='enum' href='enum.DropBehavior.html'
+                                  title='rusqlite::DropBehavior'>DropBehavior</a></td>
+                           <td class='docblock short'>
+                                <p>Options for how a Transaction or Savepoint should behave when it is dropped.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -324,6 +345,13 @@ TRANSACTION</a> for details.</p>
                                   title='rusqlite::SqliteTransaction'>SqliteTransaction</a></td>
                            <td class='docblock short'>
                                 <p>Old name for <code>Transaction</code>. <code>SqliteTransaction</code> is deprecated.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.SqliteTransactionBehavior.html'
+                                  title='rusqlite::SqliteTransactionBehavior'>SqliteTransactionBehavior</a></td>
+                           <td class='docblock short'>
+                                <p>Old name for <code>TransactionBehavior</code>. <code>SqliteTransactionBehavior</code> is deprecated.</p>
                            </td>
                        </tr></table></section>
     <section id='search' class="content hidden"></section>

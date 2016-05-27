@@ -4,13 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="API documentation for the Rust `sqlite3_column_type` fn in crate `rusqlite`.">
-    <meta name="keywords" content="rust, rustlang, rust-lang, sqlite3_column_type">
+    <meta name="description" content="API documentation for the Rust `establish` fn in crate `scurry`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, establish">
 
-    <title>rusqlite::types::sqlite3_column_type - Rust</title>
+    <title>scurry::connection::sqlite::establish - Rust</title>
 
-    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
     
 
     
@@ -28,7 +28,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>rusqlite</a>::<wbr><a href='index.html'>types</a></p><script>window.sidebarCurrent = {name: 'sqlite3_column_type', ty: 'fn', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'><a href='../../index.html'>scurry</a>::<wbr><a href='../index.html'>connection</a>::<wbr><a href='index.html'>sqlite</a></p><script>window.sidebarCurrent = {name: 'establish', ty: 'fn', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -43,12 +43,12 @@
     </nav>
 
     <section id='main' class="content fn">
-<h1 class='fqn'><span class='in-band'>Function <a href='../index.html'>rusqlite</a>::<wbr><a href='index.html'>types</a>::<wbr><a class='fn' href=''>sqlite3_column_type</a></span><span class='out-of-band'><span id='render-detail'>
+<h1 class='fqn'><span class='in-band'>Function <a href='../../index.html'>scurry</a>::<wbr><a href='../index.html'>connection</a>::<wbr><a href='index.html'>sqlite</a>::<wbr><a class='fn' href=''>establish</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-874' class='srclink' href='../../libsqlite3_sys/bindgen//fn.sqlite3_column_type.html?gotosrc=874' title='goto source code'>[src]</a></span></h1>
-<pre class='rust fn'>pub unsafe extern fn sqlite3_column_type(arg1: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut </a><a class='enum' href='../../libsqlite3_sys/bindgen/enum.Struct_sqlite3_stmt.html' title='libsqlite3_sys::bindgen::Struct_sqlite3_stmt'>Struct_sqlite3_stmt</a>, iCol: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a></pre></section>
+               </span><a id='src-407' class='srclink' href='../../../src/scurry/src/connection/sqlite.rs.html#32-37' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn establish(conn: <a class='struct' href='../../../rusqlite/struct.Connection.html' title='rusqlite::Connection'>Connection</a>, migrations_dir: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../../../scurry/connection/sqlite/struct.Sqlite.html' title='scurry::connection::sqlite::Sqlite'>Sqlite</a></pre></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -100,13 +100,13 @@
     
 
     <script>
-        window.rootPath = "../../";
-        window.currentCrate = "rusqlite";
+        window.rootPath = "../../../";
+        window.currentCrate = "scurry";
         window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
-    <script src="../../main.js"></script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
     
-    <script defer src="../../search-index.js"></script>
+    <script defer src="../../../search-index.js"></script>
 </body>
 </html>

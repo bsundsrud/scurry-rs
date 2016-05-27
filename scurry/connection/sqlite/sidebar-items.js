@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["SqliteScurryConnection",""]]});
+initSidebarItems({"fn":[["establish",""]],"struct":[["Sqlite",""]]});

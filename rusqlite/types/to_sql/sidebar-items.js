@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["ToSql","A trait for types that can be converted into SQLite values."]]});

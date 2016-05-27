@@ -47,7 +47,7 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-389' class='srclink' href='../../src/scurry/src/connection/mod.rs.html#11-19' title='goto source code'>[src]</a></span></h1>
+               </span><a id='src-545' class='srclink' href='../../src/scurry/src/connection/mod.rs.html#11-19' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait ScurryConnection: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> {
     type <a href='#associatedtype.DbConnection' class='type'>DbConnection</a>: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a>;
     fn <a href='#tymethod.get_history' class='fnname'>get_history</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../../scurry/models/struct.ScurryMetadata.html' title='scurry::models::ScurryMetadata'>ScurryMetadata</a>&gt;, <a class='enum' href='../../scurry/error/enum.ScurryError.html' title='scurry::error::ScurryError'>ScurryError</a>&gt;;
@@ -66,6 +66,7 @@
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
     <li><code>impl ScurryConnection for <a class='struct' href='../../scurry/connection/postgres/struct.Postgres.html' title='scurry::connection::postgres::Postgres'>Postgres</a></code></li>
+<li><code>impl ScurryConnection for <a class='struct' href='../../scurry/connection/sqlite/struct.Sqlite.html' title='scurry::connection::sqlite::Sqlite'>Sqlite</a></code></li>
 </ul><script type="text/javascript" async
                          src="../../implementors/scurry/connection/trait.ScurryConnection.js">
                  </script></section>

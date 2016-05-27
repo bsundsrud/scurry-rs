@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["HistoryDifferences",""]],"mod":[["postgres",""]],"trait":[["ScurryConnection",""]]});
+initSidebarItems({"enum":[["HistoryDifferences",""]],"mod":[["postgres",""],["sqlite",""]],"trait":[["ScurryConnection",""]]});

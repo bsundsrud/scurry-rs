@@ -1691,53 +1691,6 @@
 <span id="1647">1647</span>
 <span id="1648">1648</span>
 <span id="1649">1649</span>
-<span id="1650">1650</span>
-<span id="1651">1651</span>
-<span id="1652">1652</span>
-<span id="1653">1653</span>
-<span id="1654">1654</span>
-<span id="1655">1655</span>
-<span id="1656">1656</span>
-<span id="1657">1657</span>
-<span id="1658">1658</span>
-<span id="1659">1659</span>
-<span id="1660">1660</span>
-<span id="1661">1661</span>
-<span id="1662">1662</span>
-<span id="1663">1663</span>
-<span id="1664">1664</span>
-<span id="1665">1665</span>
-<span id="1666">1666</span>
-<span id="1667">1667</span>
-<span id="1668">1668</span>
-<span id="1669">1669</span>
-<span id="1670">1670</span>
-<span id="1671">1671</span>
-<span id="1672">1672</span>
-<span id="1673">1673</span>
-<span id="1674">1674</span>
-<span id="1675">1675</span>
-<span id="1676">1676</span>
-<span id="1677">1677</span>
-<span id="1678">1678</span>
-<span id="1679">1679</span>
-<span id="1680">1680</span>
-<span id="1681">1681</span>
-<span id="1682">1682</span>
-<span id="1683">1683</span>
-<span id="1684">1684</span>
-<span id="1685">1685</span>
-<span id="1686">1686</span>
-<span id="1687">1687</span>
-<span id="1688">1688</span>
-<span id="1689">1689</span>
-<span id="1690">1690</span>
-<span id="1691">1691</span>
-<span id="1692">1692</span>
-<span id="1693">1693</span>
-<span id="1694">1694</span>
-<span id="1695">1695</span>
-<span id="1696">1696</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Rusqlite is an ergonomic wrapper for using SQLite from Rust. It attempts to expose</span>
 <span class='doccomment'>//! an interface similar to [rust-postgres](https://github.com/sfackler/rust-postgres).</span>
@@ -1796,6 +1749,7 @@
 
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>libc</span>;
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>libsqlite3_sys</span> <span class='kw'>as</span> <span class='ident'>ffi</span>;
+<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>lru_cache</span>;
 <span class='attribute'>#[<span class='ident'>macro_use</span>]</span>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>bitflags</span>;
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
@@ -1804,36 +1758,45 @@
 
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>default</span>::<span class='ident'>Default</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>convert</span>;
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>marker</span>::<span class='ident'>PhantomData</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>mem</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ptr</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>path</span>::{<span class='ident'>Path</span>, <span class='ident'>PathBuf</span>};
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>rc</span>::<span class='ident'>Rc</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cell</span>::{<span class='ident'>RefCell</span>, <span class='ident'>Cell</span>};
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cell</span>::<span class='ident'>RefCell</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ffi</span>::{<span class='ident'>CStr</span>, <span class='ident'>CString</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>result</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>str</span>;
 <span class='kw'>use</span> <span class='ident'>libc</span>::{<span class='ident'>c_int</span>, <span class='ident'>c_char</span>};
 
-<span class='kw'>use</span> <span class='ident'>types</span>::{<span class='ident'>ToSql</span>, <span class='ident'>FromSql</span>};
+<span class='kw'>use</span> <span class='ident'>types</span>::{<span class='ident'>ToSql</span>, <span class='ident'>FromSql</span>, <span class='ident'>ValueRef</span>};
 <span class='kw'>use</span> <span class='ident'>error</span>::{<span class='ident'>error_from_sqlite_code</span>, <span class='ident'>error_from_handle</span>};
+<span class='kw'>use</span> <span class='ident'>raw_statement</span>::<span class='ident'>RawStatement</span>;
+<span class='kw'>use</span> <span class='ident'>cache</span>::<span class='ident'>StatementCache</span>;
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>transaction</span>::{<span class='ident'>SqliteTransaction</span>, <span class='ident'>Transaction</span>, <span class='ident'>TransactionBehavior</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>transaction</span>::{<span class='ident'>SqliteTransaction</span>, <span class='ident'>SqliteTransactionBehavior</span>, <span class='ident'>DropBehavior</span>, <span class='ident'>Savepoint</span>,
+                      <span class='ident'>Transaction</span>, <span class='ident'>TransactionBehavior</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>error</span>::{<span class='ident'>SqliteError</span>, <span class='ident'>Error</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>cache</span>::<span class='ident'>CachedStatement</span>;
 
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;load_extension&quot;</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>load_extension_guard</span>::{<span class='ident'>SqliteLoadExtensionGuard</span>, <span class='ident'>LoadExtensionGuard</span>};
 
 <span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>types</span>;
 <span class='kw'>mod</span> <span class='ident'>transaction</span>;
+<span class='kw'>mod</span> <span class='ident'>cache</span>;
 <span class='kw'>mod</span> <span class='ident'>named_params</span>;
 <span class='kw'>mod</span> <span class='ident'>error</span>;
 <span class='kw'>mod</span> <span class='ident'>convenient</span>;
+<span class='kw'>mod</span> <span class='ident'>raw_statement</span>;
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;load_extension&quot;</span>)]</span><span class='kw'>mod</span> <span class='ident'>load_extension_guard</span>;
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;trace&quot;</span>)]</span><span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>trace</span>;
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;backup&quot;</span>)]</span><span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>backup</span>;
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;functions&quot;</span>)]</span><span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>functions</span>;
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;blob&quot;</span>)]</span><span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>blob</span>;
+
+<span class='comment'>// Number of cached prepared statements we&#39;ll hold on to.</span>
+<span class='kw'>const</span> <span class='ident'>STATEMENT_CACHE_DEFAULT_CAPACITY</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>16</span>;
 
 <span class='doccomment'>/// Old name for `Result`. `SqliteResult` is deprecated.</span>
 <span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>SqliteResult</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>;
@@ -1887,6 +1850,7 @@
 <span class='doccomment'>/// A connection to a SQLite database.</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Connection</span> {
     <span class='ident'>db</span>: <span class='ident'>RefCell</span><span class='op'>&lt;</span><span class='ident'>InnerConnection</span><span class='op'>&gt;</span>,
+    <span class='ident'>cache</span>: <span class='ident'>StatementCache</span>,
     <span class='ident'>path</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>PathBuf</span><span class='op'>&gt;</span>,
 }
 
@@ -1931,6 +1895,7 @@
         <span class='ident'>InnerConnection</span>::<span class='ident'>open_with_flags</span>(<span class='kw-2'>&amp;</span><span class='ident'>c_path</span>, <span class='ident'>flags</span>).<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>db</span><span class='op'>|</span> {
             <span class='ident'>Connection</span> {
                 <span class='ident'>db</span>: <span class='ident'>RefCell</span>::<span class='ident'>new</span>(<span class='ident'>db</span>),
+                <span class='ident'>cache</span>: <span class='ident'>StatementCache</span>::<span class='ident'>with_capacity</span>(<span class='ident'>STATEMENT_CACHE_DEFAULT_CAPACITY</span>),
                 <span class='ident'>path</span>: <span class='prelude-val'>Some</span>(<span class='ident'>path</span>.<span class='ident'>as_ref</span>().<span class='ident'>to_path_buf</span>()),
             }
         })
@@ -1949,48 +1914,10 @@
         <span class='ident'>InnerConnection</span>::<span class='ident'>open_with_flags</span>(<span class='kw-2'>&amp;</span><span class='ident'>c_memory</span>, <span class='ident'>flags</span>).<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>db</span><span class='op'>|</span> {
             <span class='ident'>Connection</span> {
                 <span class='ident'>db</span>: <span class='ident'>RefCell</span>::<span class='ident'>new</span>(<span class='ident'>db</span>),
+                <span class='ident'>cache</span>: <span class='ident'>StatementCache</span>::<span class='ident'>with_capacity</span>(<span class='ident'>STATEMENT_CACHE_DEFAULT_CAPACITY</span>),
                 <span class='ident'>path</span>: <span class='prelude-val'>None</span>,
             }
         })
-    }
-
-    <span class='doccomment'>/// Begin a new transaction with the default behavior (DEFERRED).</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The transaction defaults to rolling back when it is dropped. If you want the transaction to</span>
-    <span class='doccomment'>/// commit, you must call `commit` or `set_commit`.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ## Example</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```rust,no_run</span>
-    <span class='doccomment'>/// # use rusqlite::{Connection, Result};</span>
-    <span class='doccomment'>/// # fn do_queries_part_1(conn: &amp;Connection) -&gt; Result&lt;()&gt; { Ok(()) }</span>
-    <span class='doccomment'>/// # fn do_queries_part_2(conn: &amp;Connection) -&gt; Result&lt;()&gt; { Ok(()) }</span>
-    <span class='doccomment'>/// fn perform_queries(conn: &amp;Connection) -&gt; Result&lt;()&gt; {</span>
-    <span class='doccomment'>///     let tx = try!(conn.transaction());</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>///     try!(do_queries_part_1(conn)); // tx causes rollback if this fails</span>
-    <span class='doccomment'>///     try!(do_queries_part_2(conn)); // tx causes rollback if this fails</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>///     tx.commit()</span>
-    <span class='doccomment'>/// }</span>
-    <span class='doccomment'>/// ```</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// # Failure</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Will return `Err` if the underlying SQLite call fails.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>transaction</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Transaction</span><span class='op'>&gt;</span> {
-        <span class='ident'>Transaction</span>::<span class='ident'>new</span>(<span class='self'>self</span>, <span class='ident'>TransactionBehavior</span>::<span class='ident'>Deferred</span>)
-    }
-
-    <span class='doccomment'>/// Begin a new transaction with a specified behavior.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// See `transaction`.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// # Failure</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Will return `Err` if the underlying SQLite call fails.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>transaction_with_behavior</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>behavior</span>: <span class='ident'>TransactionBehavior</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Transaction</span><span class='op'>&gt;</span> {
-        <span class='ident'>Transaction</span>::<span class='ident'>new</span>(<span class='self'>self</span>, <span class='ident'>behavior</span>)
     }
 
     <span class='doccomment'>/// Convenience method to run multiple SQL statements (that cannot take any parameters).</span>
@@ -2087,7 +2014,9 @@
     <span class='doccomment'>/// ```rust,no_run</span>
     <span class='doccomment'>/// # use rusqlite::{Result,Connection};</span>
     <span class='doccomment'>/// fn preferred_locale(conn: &amp;Connection) -&gt; Result&lt;String&gt; {</span>
-    <span class='doccomment'>///     conn.query_row_and_then(&quot;SELECT value FROM preferences WHERE name=&#39;locale&#39;&quot;, &amp;[], |row| {</span>
+    <span class='doccomment'>///     conn.query_row_and_then(&quot;SELECT value FROM preferences WHERE name=&#39;locale&#39;&quot;,</span>
+    <span class='doccomment'>///                             &amp;[],</span>
+    <span class='doccomment'>///                             |row| {</span>
     <span class='doccomment'>///         row.get_checked(0)</span>
     <span class='doccomment'>///     })</span>
     <span class='doccomment'>/// }</span>
@@ -2427,7 +2356,7 @@
                                     <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>c_stmt</span>,
                                     <span class='ident'>ptr</span>::<span class='ident'>null_mut</span>())
         };
-        <span class='self'>self</span>.<span class='ident'>decode_result</span>(<span class='ident'>r</span>).<span class='ident'>map</span>(<span class='op'>|</span>_<span class='op'>|</span> <span class='ident'>Statement</span>::<span class='ident'>new</span>(<span class='ident'>conn</span>, <span class='ident'>c_stmt</span>))
+        <span class='self'>self</span>.<span class='ident'>decode_result</span>(<span class='ident'>r</span>).<span class='ident'>map</span>(<span class='op'>|</span>_<span class='op'>|</span> <span class='ident'>Statement</span>::<span class='ident'>new</span>(<span class='ident'>conn</span>, <span class='ident'>RawStatement</span>::<span class='ident'>new</span>(<span class='ident'>c_stmt</span>)))
     }
 
     <span class='kw'>fn</span> <span class='ident'>changes</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span> {
@@ -2448,25 +2377,23 @@
 <span class='doccomment'>/// A prepared statement.</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Statement</span><span class='op'>&lt;</span><span class='lifetime'>&#39;conn</span><span class='op'>&gt;</span> {
     <span class='ident'>conn</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;conn</span> <span class='ident'>Connection</span>,
-    <span class='ident'>stmt</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>sqlite3_stmt</span>,
-    <span class='ident'>column_count</span>: <span class='ident'>c_int</span>,
+    <span class='ident'>stmt</span>: <span class='ident'>RawStatement</span>,
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;conn</span><span class='op'>&gt;</span> <span class='ident'>Statement</span><span class='op'>&lt;</span><span class='lifetime'>&#39;conn</span><span class='op'>&gt;</span> {
-    <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>conn</span>: <span class='kw-2'>&amp;</span><span class='ident'>Connection</span>, <span class='ident'>stmt</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>ffi</span>::<span class='ident'>sqlite3_stmt</span>) <span class='op'>-&gt;</span> <span class='ident'>Statement</span> {
+    <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>conn</span>: <span class='kw-2'>&amp;</span><span class='ident'>Connection</span>, <span class='ident'>stmt</span>: <span class='ident'>RawStatement</span>) <span class='op'>-&gt;</span> <span class='ident'>Statement</span> {
         <span class='ident'>Statement</span> {
             <span class='ident'>conn</span>: <span class='ident'>conn</span>,
             <span class='ident'>stmt</span>: <span class='ident'>stmt</span>,
-            <span class='ident'>column_count</span>: <span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>sqlite3_column_count</span>(<span class='ident'>stmt</span>) },
         }
     }
 
     <span class='doccomment'>/// Get all the column names in the result set of the prepared statement.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>column_names</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>str</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>n</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>column_count</span>;
+        <span class='kw'>let</span> <span class='ident'>n</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>column_count</span>();
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>cols</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>with_capacity</span>(<span class='ident'>n</span> <span class='kw'>as</span> <span class='ident'>usize</span>);
         <span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='number'>0</span>..<span class='ident'>n</span> {
-            <span class='kw'>let</span> <span class='ident'>slice</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>CStr</span>::<span class='ident'>from_ptr</span>(<span class='ident'>ffi</span>::<span class='ident'>sqlite3_column_name</span>(<span class='self'>self</span>.<span class='ident'>stmt</span>, <span class='ident'>i</span>)) };
+            <span class='kw'>let</span> <span class='ident'>slice</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>stmt</span>.<span class='ident'>column_name</span>(<span class='ident'>i</span>);
             <span class='kw'>let</span> <span class='ident'>s</span> <span class='op'>=</span> <span class='ident'>str</span>::<span class='ident'>from_utf8</span>(<span class='ident'>slice</span>.<span class='ident'>to_bytes</span>()).<span class='ident'>unwrap</span>();
             <span class='ident'>cols</span>.<span class='ident'>push</span>(<span class='ident'>s</span>);
         }
@@ -2475,20 +2402,22 @@
 
     <span class='doccomment'>/// Return the number of columns in the result set returned by the prepared statement.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>column_count</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> {
-        <span class='self'>self</span>.<span class='ident'>column_count</span>
+        <span class='self'>self</span>.<span class='ident'>stmt</span>.<span class='ident'>column_count</span>()
     }
 
     <span class='doccomment'>/// Returns the column index in the result set for a given column name.</span>
-    <span class='doccomment'>/// If there is no AS clause then the name of the column is unspecified and may change from one release of SQLite to the next.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// If there is no AS clause then the name of the column is unspecified and may change from one</span>
+    <span class='doccomment'>/// release of SQLite to the next.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// # Failure</span>
+    <span class='doccomment'>///</span>
     <span class='doccomment'>/// Will return an `Error::InvalidColumnName` when there is no column with the specified `name`.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>column_index</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='ident'>bytes</span> <span class='op'>=</span> <span class='ident'>name</span>.<span class='ident'>as_bytes</span>();
-        <span class='kw'>let</span> <span class='ident'>n</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>column_count</span>;
+        <span class='kw'>let</span> <span class='ident'>n</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>column_count</span>();
         <span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='number'>0</span>..<span class='ident'>n</span> {
-            <span class='kw'>let</span> <span class='ident'>slice</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>CStr</span>::<span class='ident'>from_ptr</span>(<span class='ident'>ffi</span>::<span class='ident'>sqlite3_column_name</span>(<span class='self'>self</span>.<span class='ident'>stmt</span>, <span class='ident'>i</span>)) };
-            <span class='kw'>if</span> <span class='ident'>bytes</span> <span class='op'>==</span> <span class='ident'>slice</span>.<span class='ident'>to_bytes</span>() {
+            <span class='kw'>if</span> <span class='ident'>bytes</span> <span class='op'>==</span> <span class='self'>self</span>.<span class='ident'>stmt</span>.<span class='ident'>column_name</span>(<span class='ident'>i</span>).<span class='ident'>to_bytes</span>() {
                 <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(<span class='ident'>i</span>);
             }
         }
@@ -2519,18 +2448,16 @@
     <span class='doccomment'>/// Will return `Err` if binding parameters fails, the executed statement returns rows (in</span>
     <span class='doccomment'>/// which case `query` should be used instead), or the underling SQLite call fails.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>execute</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>params</span>: <span class='kw-2'>&amp;</span>[<span class='kw-2'>&amp;</span><span class='ident'>ToSql</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>c_int</span><span class='op'>&gt;</span> {
-        <span class='kw'>unsafe</span> {
-            <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>bind_parameters</span>(<span class='ident'>params</span>));
-            <span class='self'>self</span>.<span class='ident'>execute_</span>()
-        }
+        <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>bind_parameters</span>(<span class='ident'>params</span>));
+        <span class='self'>self</span>.<span class='ident'>execute_</span>()
     }
 
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>execute_</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>c_int</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>r</span> <span class='op'>=</span> <span class='ident'>ffi</span>::<span class='ident'>sqlite3_step</span>(<span class='self'>self</span>.<span class='ident'>stmt</span>);
-        <span class='ident'>ffi</span>::<span class='ident'>sqlite3_reset</span>(<span class='self'>self</span>.<span class='ident'>stmt</span>);
+    <span class='kw'>fn</span> <span class='ident'>execute_</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>c_int</span><span class='op'>&gt;</span> {
+        <span class='kw'>let</span> <span class='ident'>r</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>stmt</span>.<span class='ident'>step</span>();
+        <span class='self'>self</span>.<span class='ident'>stmt</span>.<span class='ident'>reset</span>();
         <span class='kw'>match</span> <span class='ident'>r</span> {
             <span class='ident'>ffi</span>::<span class='ident'>SQLITE_DONE</span> <span class='op'>=&gt;</span> {
-                <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>column_count</span> <span class='op'>==</span> <span class='number'>0</span> {
+                <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>column_count</span>() <span class='op'>==</span> <span class='number'>0</span> {
                     <span class='prelude-val'>Ok</span>(<span class='self'>self</span>.<span class='ident'>conn</span>.<span class='ident'>changes</span>())
                 } <span class='kw'>else</span> {
                     <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>ExecuteReturnedResults</span>)
@@ -2541,7 +2468,11 @@
         }
     }
 
-    <span class='doccomment'>/// Execute the prepared statement, returning an iterator over the resulting rows.</span>
+    <span class='doccomment'>/// Execute the prepared statement, returning a handle to the resulting rows.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// Due to lifetime restricts, the rows handle returned by `query` does not</span>
+    <span class='doccomment'>/// implement the `Iterator` trait. Consider using `query_map` or `query_and_then`</span>
+    <span class='doccomment'>/// instead, which do.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ## Example</span>
     <span class='doccomment'>///</span>
@@ -2552,7 +2483,7 @@
     <span class='doccomment'>///     let mut rows = try!(stmt.query(&amp;[]));</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>///     let mut names = Vec::new();</span>
-    <span class='doccomment'>///     for result_row in rows {</span>
+    <span class='doccomment'>///     while let Some(result_row) = rows.next() {</span>
     <span class='doccomment'>///         let row = try!(result_row);</span>
     <span class='doccomment'>///         names.push(row.get(0));</span>
     <span class='doccomment'>///     }</span>
@@ -2561,24 +2492,35 @@
     <span class='doccomment'>/// }</span>
     <span class='doccomment'>/// ```</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// # Failure</span>
+    <span class='doccomment'>/// ## Failure</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// Will return `Err` if binding parameters fails.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>query</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>params</span>: <span class='kw-2'>&amp;</span>[<span class='kw-2'>&amp;</span><span class='ident'>ToSql</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Rows</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;&gt;</span> {
-        <span class='kw'>unsafe</span> {
-            <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>bind_parameters</span>(<span class='ident'>params</span>));
-        }
-
+        <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>bind_parameters</span>(<span class='ident'>params</span>));
         <span class='prelude-val'>Ok</span>(<span class='ident'>Rows</span>::<span class='ident'>new</span>(<span class='self'>self</span>))
     }
 
-    <span class='doccomment'>/// Executes the prepared statement and maps a function over the resulting</span>
-    <span class='doccomment'>/// rows.</span>
+    <span class='doccomment'>/// Executes the prepared statement and maps a function over the resulting rows, returning</span>
+    <span class='doccomment'>/// an iterator over the mapped function results.</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Unlike the iterator produced by `query`, the returned iterator does not expose the possibility</span>
-    <span class='doccomment'>/// for accessing stale rows.</span>
+    <span class='doccomment'>/// ## Example</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// # Failure</span>
+    <span class='doccomment'>/// ```rust,no_run</span>
+    <span class='doccomment'>/// # use rusqlite::{Connection, Result};</span>
+    <span class='doccomment'>/// fn get_names(conn: &amp;Connection) -&gt; Result&lt;Vec&lt;String&gt;&gt; {</span>
+    <span class='doccomment'>///     let mut stmt = try!(conn.prepare(&quot;SELECT name FROM people&quot;));</span>
+    <span class='doccomment'>///     let rows = try!(stmt.query_map(&amp;[], |row| row.get(0)));</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>///     let mut names = Vec::new();</span>
+    <span class='doccomment'>///     for name_result in rows {</span>
+    <span class='doccomment'>///         names.push(try!(name_result));</span>
+    <span class='doccomment'>///     }</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>///     Ok(names)</span>
+    <span class='doccomment'>/// }</span>
+    <span class='doccomment'>/// ```</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ## Failure</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// Will return `Err` if binding parameters fails.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>query_map</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>, <span class='ident'>F</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>params</span>: <span class='kw-2'>&amp;</span>[<span class='kw-2'>&amp;</span><span class='ident'>ToSql</span>], <span class='ident'>f</span>: <span class='ident'>F</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>MappedRows</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>F</span><span class='op'>&gt;&gt;</span>
@@ -2595,9 +2537,6 @@
     <span class='doccomment'>/// Executes the prepared statement and maps a function over the resulting</span>
     <span class='doccomment'>/// rows, where the function returns a `Result` with `Error` type implementing</span>
     <span class='doccomment'>/// `std::convert::From&lt;Error&gt;` (so errors can be unified).</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Unlike the iterator produced by `query`, the returned iterator does not expose the possibility</span>
-    <span class='doccomment'>/// for accessing stale rows.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// # Failure</span>
     <span class='doccomment'>///</span>
@@ -2629,32 +2568,44 @@
         <span class='self'>self</span>.<span class='ident'>finalize_</span>()
     }
 
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>bind_parameters</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>params</span>: <span class='kw-2'>&amp;</span>[<span class='kw-2'>&amp;</span><span class='ident'>ToSql</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>params</span>.<span class='ident'>len</span>() <span class='kw'>as</span> <span class='ident'>c_int</span> <span class='op'>==</span> <span class='ident'>ffi</span>::<span class='ident'>sqlite3_bind_parameter_count</span>(<span class='self'>self</span>.<span class='ident'>stmt</span>),
+    <span class='kw'>fn</span> <span class='ident'>bind_parameters</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>params</span>: <span class='kw-2'>&amp;</span>[<span class='kw-2'>&amp;</span><span class='ident'>ToSql</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
+        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>params</span>.<span class='ident'>len</span>() <span class='kw'>as</span> <span class='ident'>c_int</span> <span class='op'>==</span> <span class='self'>self</span>.<span class='ident'>stmt</span>.<span class='ident'>bind_parameter_count</span>(),
                 <span class='string'>&quot;incorrect number of parameters to query(): expected {}, got {}&quot;</span>,
-                <span class='ident'>ffi</span>::<span class='ident'>sqlite3_bind_parameter_count</span>(<span class='self'>self</span>.<span class='ident'>stmt</span>),
+                <span class='self'>self</span>.<span class='ident'>stmt</span>.<span class='ident'>bind_parameter_count</span>(),
                 <span class='ident'>params</span>.<span class='ident'>len</span>());
 
         <span class='kw'>for</span> (<span class='ident'>i</span>, <span class='ident'>p</span>) <span class='kw'>in</span> <span class='ident'>params</span>.<span class='ident'>iter</span>().<span class='ident'>enumerate</span>() {
-            <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>conn</span>.<span class='ident'>decode_result</span>(<span class='ident'>p</span>.<span class='ident'>bind_parameter</span>(<span class='self'>self</span>.<span class='ident'>stmt</span>, (<span class='ident'>i</span> <span class='op'>+</span> <span class='number'>1</span>) <span class='kw'>as</span> <span class='ident'>c_int</span>)));
+            <span class='macro'>try</span><span class='macro'>!</span>(<span class='kw'>unsafe</span> {
+                <span class='self'>self</span>.<span class='ident'>conn</span>.<span class='ident'>decode_result</span>(
+                    <span class='comment'>// This should be</span>
+                    <span class='comment'>// `p.bind_parameter(self.stmt.ptr(), (i + 1) as c_int)`</span>
+                    <span class='comment'>// but that doesn&#39;t compile until Rust 1.9 due to a compiler bug.</span>
+                    <span class='ident'>ToSql</span>::<span class='ident'>bind_parameter</span>(<span class='op'>*</span><span class='ident'>p</span>, <span class='self'>self</span>.<span class='ident'>stmt</span>.<span class='ident'>ptr</span>(), (<span class='ident'>i</span> <span class='op'>+</span> <span class='number'>1</span>) <span class='kw'>as</span> <span class='ident'>c_int</span>)
+                )
+            });
         }
 
         <span class='prelude-val'>Ok</span>(())
     }
 
     <span class='kw'>fn</span> <span class='ident'>finalize_</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>r</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>sqlite3_finalize</span>(<span class='self'>self</span>.<span class='ident'>stmt</span>) };
-        <span class='self'>self</span>.<span class='ident'>stmt</span> <span class='op'>=</span> <span class='ident'>ptr</span>::<span class='ident'>null_mut</span>();
-        <span class='self'>self</span>.<span class='ident'>conn</span>.<span class='ident'>decode_result</span>(<span class='ident'>r</span>)
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>stmt</span> <span class='op'>=</span> <span class='ident'>RawStatement</span>::<span class='ident'>new</span>(<span class='ident'>ptr</span>::<span class='ident'>null_mut</span>());
+        <span class='ident'>mem</span>::<span class='ident'>swap</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>stmt</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>stmt</span>);
+        <span class='self'>self</span>.<span class='ident'>conn</span>.<span class='ident'>decode_result</span>(<span class='ident'>stmt</span>.<span class='ident'>finalize</span>())
+    }
+}
+
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;conn</span><span class='op'>&gt;</span> <span class='ident'>Into</span><span class='op'>&lt;</span><span class='ident'>RawStatement</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Statement</span><span class='op'>&lt;</span><span class='lifetime'>&#39;conn</span><span class='op'>&gt;</span> {
+    <span class='kw'>fn</span> <span class='ident'>into</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>RawStatement</span> {
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>stmt</span> <span class='op'>=</span> <span class='ident'>RawStatement</span>::<span class='ident'>new</span>(<span class='ident'>ptr</span>::<span class='ident'>null_mut</span>());
+        <span class='ident'>mem</span>::<span class='ident'>swap</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>stmt</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>stmt</span>);
+        <span class='ident'>stmt</span>
     }
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;conn</span><span class='op'>&gt;</span> <span class='ident'>fmt</span>::<span class='ident'>Debug</span> <span class='kw'>for</span> <span class='ident'>Statement</span><span class='op'>&lt;</span><span class='lifetime'>&#39;conn</span><span class='op'>&gt;</span> {
     <span class='kw'>fn</span> <span class='ident'>fmt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>f</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>fmt</span>::<span class='ident'>Formatter</span>) <span class='op'>-&gt;</span> <span class='ident'>fmt</span>::<span class='prelude-ty'>Result</span> {
-        <span class='kw'>let</span> <span class='ident'>sql</span> <span class='op'>=</span> <span class='kw'>unsafe</span> {
-            <span class='kw'>let</span> <span class='ident'>c_slice</span> <span class='op'>=</span> <span class='ident'>CStr</span>::<span class='ident'>from_ptr</span>(<span class='ident'>ffi</span>::<span class='ident'>sqlite3_sql</span>(<span class='self'>self</span>.<span class='ident'>stmt</span>)).<span class='ident'>to_bytes</span>();
-            <span class='ident'>str</span>::<span class='ident'>from_utf8</span>(<span class='ident'>c_slice</span>)
-        };
+        <span class='kw'>let</span> <span class='ident'>sql</span> <span class='op'>=</span> <span class='ident'>str</span>::<span class='ident'>from_utf8</span>(<span class='self'>self</span>.<span class='ident'>stmt</span>.<span class='ident'>sql</span>().<span class='ident'>to_bytes</span>());
         <span class='ident'>f</span>.<span class='ident'>debug_struct</span>(<span class='string'>&quot;Statement&quot;</span>)
             .<span class='ident'>field</span>(<span class='string'>&quot;conn&quot;</span>, <span class='self'>self</span>.<span class='ident'>conn</span>)
             .<span class='ident'>field</span>(<span class='string'>&quot;stmt&quot;</span>, <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>stmt</span>)
@@ -2682,7 +2633,8 @@
     <span class='kw'>type</span> <span class='ident'>Item</span> <span class='op'>=</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>;
 
     <span class='kw'>fn</span> <span class='ident'>next</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>rows</span>.<span class='ident'>next</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>row_result</span><span class='op'>|</span> <span class='ident'>row_result</span>.<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>row</span><span class='op'>|</span> (<span class='self'>self</span>.<span class='ident'>map</span>)(<span class='kw-2'>&amp;</span><span class='ident'>row</span>)))
+        <span class='kw'>let</span> <span class='ident'>map</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>map</span>;
+        <span class='self'>self</span>.<span class='ident'>rows</span>.<span class='ident'>next</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>row_result</span><span class='op'>|</span> <span class='ident'>row_result</span>.<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>row</span><span class='op'>|</span> (<span class='ident'>map</span>)(<span class='kw-2'>&amp;</span><span class='ident'>row</span>)))
     }
 }
 
@@ -2700,9 +2652,10 @@
     <span class='kw'>type</span> <span class='ident'>Item</span> <span class='op'>=</span> <span class='ident'>result</span>::<span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>T</span>, <span class='ident'>E</span><span class='op'>&gt;</span>;
 
     <span class='kw'>fn</span> <span class='ident'>next</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='self'>Self</span>::<span class='ident'>Item</span><span class='op'>&gt;</span> {
+        <span class='kw'>let</span> <span class='ident'>map</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>map</span>;
         <span class='self'>self</span>.<span class='ident'>rows</span>.<span class='ident'>next</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>row_result</span><span class='op'>|</span> {
             <span class='ident'>row_result</span>.<span class='ident'>map_err</span>(<span class='ident'>E</span>::<span class='ident'>from</span>)
-                .<span class='ident'>and_then</span>(<span class='op'>|</span><span class='ident'>row</span><span class='op'>|</span> (<span class='self'>self</span>.<span class='ident'>map</span>)(<span class='kw-2'>&amp;</span><span class='ident'>row</span>))
+                .<span class='ident'>and_then</span>(<span class='op'>|</span><span class='ident'>row</span><span class='op'>|</span> (<span class='ident'>map</span>)(<span class='kw-2'>&amp;</span><span class='ident'>row</span>))
         })
     }
 }
@@ -2710,52 +2663,17 @@
 <span class='doccomment'>/// Old name for `Rows`. `SqliteRows` is deprecated.</span>
 <span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>SqliteRows</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Rows</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span>;
 
-<span class='doccomment'>/// An iterator over the resulting rows of a query.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// ## Warning</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Strongly consider using `query_map` or `query_and_then` instead of `query`; the former do not</span>
-<span class='doccomment'>/// suffer from the following problem.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Due to the way SQLite returns result rows of a query, it is not safe to attempt to get values</span>
-<span class='doccomment'>/// from a row after it has become stale (i.e., `next()` has been called again on the `Rows`</span>
-<span class='doccomment'>/// iterator). For example:</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// ```rust,no_run</span>
-<span class='doccomment'>/// # use rusqlite::{Connection, Result};</span>
-<span class='doccomment'>/// fn bad_function_will_panic(conn: &amp;Connection) -&gt; Result&lt;i64&gt; {</span>
-<span class='doccomment'>///     let mut stmt = try!(conn.prepare(&quot;SELECT id FROM my_table&quot;));</span>
-<span class='doccomment'>///     let mut rows = try!(stmt.query(&amp;[]));</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>///     let row0 = try!(rows.next().unwrap());</span>
-<span class='doccomment'>///     // row 0 is valid for now...</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>///     let row1 = try!(rows.next().unwrap());</span>
-<span class='doccomment'>///     // row 0 is now STALE, and row 1 is valid</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>///     let my_id = row0.get(0); // WILL PANIC because row 0 is stale</span>
-<span class='doccomment'>///     Ok(my_id)</span>
-<span class='doccomment'>/// }</span>
-<span class='doccomment'>/// ```</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Please note that this means some of the methods on `Iterator` are not useful, such as `collect`</span>
-<span class='doccomment'>/// (which would result in a collection of rows, only the last of which can safely be used) and</span>
-<span class='doccomment'>/// `min`/`max` (which could return a stale row unless the last row happened to be the min or max,</span>
-<span class='doccomment'>/// respectively).</span>
+<span class='doccomment'>/// An handle for the resulting rows of a query.</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Rows</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span> {
     <span class='ident'>stmt</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;stmt</span> <span class='ident'>Statement</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;&gt;</span>,
-    <span class='ident'>current_row</span>: <span class='ident'>Rc</span><span class='op'>&lt;</span><span class='ident'>Cell</span><span class='op'>&lt;</span><span class='ident'>c_int</span><span class='op'>&gt;&gt;</span>,
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span> <span class='ident'>Rows</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span> {
     <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>stmt</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;stmt</span> <span class='ident'>Statement</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Rows</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span> {
-        <span class='ident'>Rows</span> {
-            <span class='ident'>stmt</span>: <span class='prelude-val'>Some</span>(<span class='ident'>stmt</span>),
-            <span class='ident'>current_row</span>: <span class='ident'>Rc</span>::<span class='ident'>new</span>(<span class='ident'>Cell</span>::<span class='ident'>new</span>(<span class='number'>0</span>)),
-        }
+        <span class='ident'>Rows</span> { <span class='ident'>stmt</span>: <span class='prelude-val'>Some</span>(<span class='ident'>stmt</span>) }
     }
 
-    <span class='kw'>fn</span> <span class='ident'>get_expected_row</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Row</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;&gt;</span> {
+    <span class='kw'>fn</span> <span class='ident'>get_expected_row</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Row</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;stmt</span><span class='op'>&gt;&gt;</span> {
         <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>next</span>() {
             <span class='prelude-val'>Some</span>(<span class='ident'>row</span>) <span class='op'>=&gt;</span> <span class='ident'>row</span>,
             <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>QueryReturnedNoRows</span>),
@@ -2764,26 +2682,27 @@
 
     <span class='kw'>fn</span> <span class='ident'>reset</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
         <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>stmt</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>stmt</span>.<span class='ident'>take</span>() {
-            <span class='kw'>unsafe</span> {
-                <span class='ident'>ffi</span>::<span class='ident'>sqlite3_reset</span>(<span class='ident'>stmt</span>.<span class='ident'>stmt</span>);
-            }
+            <span class='ident'>stmt</span>.<span class='ident'>stmt</span>.<span class='ident'>reset</span>();
         }
     }
-}
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span> <span class='ident'>Iterator</span> <span class='kw'>for</span> <span class='ident'>Rows</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span> {
-    <span class='kw'>type</span> <span class='ident'>Item</span> <span class='op'>=</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Row</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;&gt;</span>;
-
-    <span class='kw'>fn</span> <span class='ident'>next</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Row</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// Attempt to get the next row from the query. Returns `Some(Ok(Row))` if there</span>
+    <span class='doccomment'>/// is another row, `Some(Err(...))` if there was an error getting the next</span>
+    <span class='doccomment'>/// row, and `None` if all rows have been retrieved.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// ## Note</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// This interface is not compatible with Rust&#39;s `Iterator` trait, because the</span>
+    <span class='doccomment'>/// lifetime of the returned row is tied to the lifetime of `self`. This is a</span>
+    <span class='doccomment'>/// &quot;streaming iterator&quot;. For a more natural interface, consider using `query_map`</span>
+    <span class='doccomment'>/// or `query_and_then` instead, which return types that implement `Iterator`.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>next</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Row</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;stmt</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span> {
         <span class='self'>self</span>.<span class='ident'>stmt</span>.<span class='ident'>and_then</span>(<span class='op'>|</span><span class='ident'>stmt</span><span class='op'>|</span> {
-            <span class='kw'>match</span> <span class='kw'>unsafe</span> { <span class='ident'>ffi</span>::<span class='ident'>sqlite3_step</span>(<span class='ident'>stmt</span>.<span class='ident'>stmt</span>) } {
+            <span class='kw'>match</span> <span class='ident'>stmt</span>.<span class='ident'>stmt</span>.<span class='ident'>step</span>() {
                 <span class='ident'>ffi</span>::<span class='ident'>SQLITE_ROW</span> <span class='op'>=&gt;</span> {
-                    <span class='kw'>let</span> <span class='ident'>current_row</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>current_row</span>.<span class='ident'>get</span>() <span class='op'>+</span> <span class='number'>1</span>;
-                    <span class='self'>self</span>.<span class='ident'>current_row</span>.<span class='ident'>set</span>(<span class='ident'>current_row</span>);
                     <span class='prelude-val'>Some</span>(<span class='prelude-val'>Ok</span>(<span class='ident'>Row</span> {
                         <span class='ident'>stmt</span>: <span class='ident'>stmt</span>,
-                        <span class='ident'>current_row</span>: <span class='self'>self</span>.<span class='ident'>current_row</span>.<span class='ident'>clone</span>(),
-                        <span class='ident'>row_idx</span>: <span class='ident'>current_row</span>,
+                        <span class='ident'>phantom</span>: <span class='ident'>PhantomData</span>,
                     }))
                 }
                 <span class='ident'>ffi</span>::<span class='ident'>SQLITE_DONE</span> <span class='op'>=&gt;</span> {
@@ -2806,46 +2725,22 @@
 }
 
 <span class='doccomment'>/// Old name for `Row`. `SqliteRow` is deprecated.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>SqliteRow</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Row</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span>;
+<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>SqliteRow</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Row</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span>;
 
 <span class='doccomment'>/// A single result row of a query.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Row</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span> {
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Row</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span> {
     <span class='ident'>stmt</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;stmt</span> <span class='ident'>Statement</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span>,
-    <span class='ident'>current_row</span>: <span class='ident'>Rc</span><span class='op'>&lt;</span><span class='ident'>Cell</span><span class='op'>&lt;</span><span class='ident'>c_int</span><span class='op'>&gt;&gt;</span>,
-    <span class='ident'>row_idx</span>: <span class='ident'>c_int</span>,
+    <span class='ident'>phantom</span>: <span class='ident'>PhantomData</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> ()<span class='op'>&gt;</span>,
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span> <span class='ident'>Row</span><span class='op'>&lt;</span><span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span> {
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span> <span class='ident'>Row</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;stmt</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Get the value of a particular column of the result row.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Note that `Row` can panic at runtime if you use it incorrectly. When you are</span>
-    <span class='doccomment'>/// retrieving the rows of a query, a row becomes stale once you have requested the next row,</span>
-    <span class='doccomment'>/// and the values can no longer be retrieved. In general (when using looping over the rows,</span>
-    <span class='doccomment'>/// for example) this isn&#39;t an issue, but it means you cannot do something like this:</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```rust,no_run</span>
-    <span class='doccomment'>/// # use rusqlite::{Connection, Result};</span>
-    <span class='doccomment'>/// fn bad_function_will_panic(conn: &amp;Connection) -&gt; Result&lt;i64&gt; {</span>
-    <span class='doccomment'>///     let mut stmt = try!(conn.prepare(&quot;SELECT id FROM my_table&quot;));</span>
-    <span class='doccomment'>///     let mut rows = try!(stmt.query(&amp;[]));</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>///     let row0 = try!(rows.next().unwrap());</span>
-    <span class='doccomment'>///     // row 0 is value now...</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>///     let row1 = try!(rows.next().unwrap());</span>
-    <span class='doccomment'>///     // row 0 is now STALE, and row 1 is valid</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>///     let my_id = row0.get(0); // WILL PANIC because row 0 is stale</span>
-    <span class='doccomment'>///     Ok(my_id)</span>
-    <span class='doccomment'>/// }</span>
-    <span class='doccomment'>/// ```</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// ## Failure</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// Panics if the underlying SQLite column type is not a valid type as a source for `T`.</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Panics if `idx` is outside the range of columns in the returned query or if this row</span>
-    <span class='doccomment'>/// is stale.</span>
+    <span class='doccomment'>/// Panics if `idx` is outside the range of columns in the returned query.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get</span><span class='op'>&lt;</span><span class='ident'>I</span>: <span class='ident'>RowIndex</span>, <span class='ident'>T</span>: <span class='ident'>FromSql</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>idx</span>: <span class='ident'>I</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
         <span class='self'>self</span>.<span class='ident'>get_checked</span>(<span class='ident'>idx</span>).<span class='ident'>unwrap</span>()
     }
@@ -2862,21 +2757,10 @@
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// Returns an `Error::InvalidColumnName` if `idx` is not a valid column name</span>
     <span class='doccomment'>/// for this row.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Returns an `Error::GetFromStaleRow` if this row is stale.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_checked</span><span class='op'>&lt;</span><span class='ident'>I</span>: <span class='ident'>RowIndex</span>, <span class='ident'>T</span>: <span class='ident'>FromSql</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>idx</span>: <span class='ident'>I</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> {
-        <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>row_idx</span> <span class='op'>!=</span> <span class='self'>self</span>.<span class='ident'>current_row</span>.<span class='ident'>get</span>() {
-            <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>GetFromStaleRow</span>);
-        }
-        <span class='kw'>unsafe</span> {
-            <span class='kw'>let</span> <span class='ident'>idx</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>idx</span>.<span class='ident'>idx</span>(<span class='self'>self</span>.<span class='ident'>stmt</span>));
-
-            <span class='kw'>if</span> <span class='ident'>T</span>::<span class='ident'>column_has_valid_sqlite_type</span>(<span class='self'>self</span>.<span class='ident'>stmt</span>.<span class='ident'>stmt</span>, <span class='ident'>idx</span>) {
-                <span class='ident'>FromSql</span>::<span class='ident'>column_result</span>(<span class='self'>self</span>.<span class='ident'>stmt</span>.<span class='ident'>stmt</span>, <span class='ident'>idx</span>)
-            } <span class='kw'>else</span> {
-                <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>InvalidColumnType</span>)
-            }
-        }
+        <span class='kw'>let</span> <span class='ident'>idx</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>idx</span>.<span class='ident'>idx</span>(<span class='self'>self</span>.<span class='ident'>stmt</span>));
+        <span class='kw'>let</span> <span class='ident'>value</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>ValueRef</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>stmt</span>.<span class='ident'>stmt</span>, <span class='ident'>idx</span>) };
+        <span class='ident'>FromSql</span>::<span class='ident'>column_result</span>(<span class='ident'>value</span>)
     }
 
     <span class='doccomment'>/// Return the number of columns in the current row.</span>
@@ -2895,7 +2779,7 @@
 <span class='kw'>impl</span> <span class='ident'>RowIndex</span> <span class='kw'>for</span> <span class='ident'>i32</span> {
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>idx</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>stmt</span>: <span class='kw-2'>&amp;</span><span class='ident'>Statement</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> {
-        <span class='kw'>if</span> <span class='op'>*</span><span class='self'>self</span> <span class='op'>&lt;</span> <span class='number'>0</span> <span class='op'>||</span> <span class='op'>*</span><span class='self'>self</span> <span class='op'>&gt;=</span> <span class='ident'>stmt</span>.<span class='ident'>column_count</span> {
+        <span class='kw'>if</span> <span class='op'>*</span><span class='self'>self</span> <span class='op'>&lt;</span> <span class='number'>0</span> <span class='op'>||</span> <span class='op'>*</span><span class='self'>self</span> <span class='op'>&gt;=</span> <span class='ident'>stmt</span>.<span class='ident'>column_count</span>() {
             <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>InvalidColumnIndex</span>(<span class='op'>*</span><span class='self'>self</span>))
         } <span class='kw'>else</span> {
             <span class='prelude-val'>Ok</span>(<span class='op'>*</span><span class='self'>self</span>)
@@ -2907,6 +2791,39 @@
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>idx</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>stmt</span>: <span class='kw-2'>&amp;</span><span class='ident'>Statement</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> {
         <span class='ident'>stmt</span>.<span class='ident'>column_index</span>(<span class='op'>*</span><span class='self'>self</span>)
+    }
+}
+
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>ValueRef</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
+    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>stmt</span>: <span class='kw-2'>&amp;</span><span class='ident'>RawStatement</span>, <span class='ident'>col</span>: <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>ValueRef</span> {
+        <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>slice</span>::<span class='ident'>from_raw_parts</span>;
+
+        <span class='kw'>let</span> <span class='ident'>raw</span> <span class='op'>=</span> <span class='ident'>stmt</span>.<span class='ident'>ptr</span>();
+
+        <span class='kw'>match</span> <span class='ident'>stmt</span>.<span class='ident'>column_type</span>(<span class='ident'>col</span>) {
+            <span class='ident'>ffi</span>::<span class='ident'>SQLITE_NULL</span> <span class='op'>=&gt;</span> <span class='ident'>ValueRef</span>::<span class='ident'>Null</span>,
+            <span class='ident'>ffi</span>::<span class='ident'>SQLITE_INTEGER</span> <span class='op'>=&gt;</span> <span class='ident'>ValueRef</span>::<span class='ident'>Integer</span>(<span class='ident'>ffi</span>::<span class='ident'>sqlite3_column_int64</span>(<span class='ident'>raw</span>, <span class='ident'>col</span>)),
+            <span class='ident'>ffi</span>::<span class='ident'>SQLITE_FLOAT</span> <span class='op'>=&gt;</span> <span class='ident'>ValueRef</span>::<span class='ident'>Real</span>(<span class='ident'>ffi</span>::<span class='ident'>sqlite3_column_double</span>(<span class='ident'>raw</span>, <span class='ident'>col</span>)),
+            <span class='ident'>ffi</span>::<span class='ident'>SQLITE_TEXT</span> <span class='op'>=&gt;</span> {
+                <span class='kw'>let</span> <span class='ident'>text</span> <span class='op'>=</span> <span class='ident'>ffi</span>::<span class='ident'>sqlite3_column_text</span>(<span class='ident'>raw</span>, <span class='ident'>col</span>);
+                <span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='ident'>text</span>.<span class='ident'>is_null</span>(), <span class='string'>&quot;unexpected SQLITE_TEXT column type with NULL data&quot;</span>);
+                <span class='kw'>let</span> <span class='ident'>s</span> <span class='op'>=</span> <span class='ident'>CStr</span>::<span class='ident'>from_ptr</span>(<span class='ident'>text</span> <span class='kw'>as</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_char</span>);
+
+                <span class='comment'>// sqlite3_column_text returns UTF8 data, so our unwrap here should be fine.</span>
+                <span class='kw'>let</span> <span class='ident'>s</span> <span class='op'>=</span> <span class='ident'>s</span>.<span class='ident'>to_str</span>().<span class='ident'>expect</span>(<span class='string'>&quot;sqlite3_column_text returned invalid UTF-8&quot;</span>);
+                <span class='ident'>ValueRef</span>::<span class='ident'>Text</span>(<span class='ident'>s</span>)
+            }
+            <span class='ident'>ffi</span>::<span class='ident'>SQLITE_BLOB</span> <span class='op'>=&gt;</span> {
+                <span class='kw'>let</span> <span class='ident'>blob</span> <span class='op'>=</span> <span class='ident'>ffi</span>::<span class='ident'>sqlite3_column_blob</span>(<span class='ident'>raw</span>, <span class='ident'>col</span>);
+                <span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='ident'>blob</span>.<span class='ident'>is_null</span>(), <span class='string'>&quot;unexpected SQLITE_BLOB column type with NULL data&quot;</span>);
+
+                <span class='kw'>let</span> <span class='ident'>len</span> <span class='op'>=</span> <span class='ident'>ffi</span>::<span class='ident'>sqlite3_column_bytes</span>(<span class='ident'>raw</span>, <span class='ident'>col</span>);
+                <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>len</span> <span class='op'>&gt;=</span> <span class='number'>0</span>, <span class='string'>&quot;unexpected negative return from sqlite3_column_bytes&quot;</span>);
+
+                <span class='ident'>ValueRef</span>::<span class='ident'>Blob</span>(<span class='ident'>from_raw_parts</span>(<span class='ident'>blob</span> <span class='kw'>as</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>u8</span>, <span class='ident'>len</span> <span class='kw'>as</span> <span class='ident'>usize</span>))
+            }
+            _ <span class='op'>=&gt;</span> <span class='macro'>unreachable</span><span class='macro'>!</span>(<span class='string'>&quot;sqlite3_column_type returned invalid value&quot;</span>)
+        }
     }
 }
 
@@ -3058,15 +2975,24 @@
 
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>query</span> <span class='op'>=</span> <span class='ident'>db</span>.<span class='ident'>prepare</span>(<span class='string'>&quot;SELECT x FROM foo WHERE x &lt; ? ORDER BY x DESC&quot;</span>).<span class='ident'>unwrap</span>();
         {
-            <span class='kw'>let</span> <span class='ident'>rows</span> <span class='op'>=</span> <span class='ident'>query</span>.<span class='ident'>query</span>(<span class='kw-2'>&amp;</span>[<span class='kw-2'>&amp;</span><span class='number'>4i32</span>]).<span class='ident'>unwrap</span>();
-            <span class='kw'>let</span> <span class='ident'>v</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>rows</span>.<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>r</span><span class='op'>|</span> <span class='ident'>r</span>.<span class='ident'>unwrap</span>().<span class='ident'>get</span>(<span class='number'>0</span>)).<span class='ident'>collect</span>();
+            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rows</span> <span class='op'>=</span> <span class='ident'>query</span>.<span class='ident'>query</span>(<span class='kw-2'>&amp;</span>[<span class='kw-2'>&amp;</span><span class='number'>4i32</span>]).<span class='ident'>unwrap</span>();
+            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>v</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span>::<span class='ident'>new</span>();
+
+            <span class='kw'>while</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>row</span>) <span class='op'>=</span> <span class='ident'>rows</span>.<span class='ident'>next</span>() {
+                <span class='ident'>v</span>.<span class='ident'>push</span>(<span class='ident'>row</span>.<span class='ident'>unwrap</span>().<span class='ident'>get</span>(<span class='number'>0</span>));
+            }
 
             <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>v</span>, [<span class='number'>3i32</span>, <span class='number'>2</span>, <span class='number'>1</span>]);
         }
 
         {
-            <span class='kw'>let</span> <span class='ident'>rows</span> <span class='op'>=</span> <span class='ident'>query</span>.<span class='ident'>query</span>(<span class='kw-2'>&amp;</span>[<span class='kw-2'>&amp;</span><span class='number'>3i32</span>]).<span class='ident'>unwrap</span>();
-            <span class='kw'>let</span> <span class='ident'>v</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>rows</span>.<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>r</span><span class='op'>|</span> <span class='ident'>r</span>.<span class='ident'>unwrap</span>().<span class='ident'>get</span>(<span class='number'>0</span>)).<span class='ident'>collect</span>();
+            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rows</span> <span class='op'>=</span> <span class='ident'>query</span>.<span class='ident'>query</span>(<span class='kw-2'>&amp;</span>[<span class='kw-2'>&amp;</span><span class='number'>3i32</span>]).<span class='ident'>unwrap</span>();
+            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>v</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span>::<span class='ident'>new</span>();
+
+            <span class='kw'>while</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>row</span>) <span class='op'>=</span> <span class='ident'>rows</span>.<span class='ident'>next</span>() {
+                <span class='ident'>v</span>.<span class='ident'>push</span>(<span class='ident'>row</span>.<span class='ident'>unwrap</span>().<span class='ident'>get</span>(<span class='number'>0</span>));
+            }
+
             <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>v</span>, [<span class='number'>2i32</span>, <span class='number'>1</span>]);
         }
     }
@@ -3127,26 +3053,6 @@
 
         <span class='kw'>let</span> <span class='ident'>err</span> <span class='op'>=</span> <span class='ident'>db</span>.<span class='ident'>prepare</span>(<span class='string'>&quot;SELECT * FROM does_not_exist&quot;</span>).<span class='ident'>unwrap_err</span>();
         <span class='macro'>assert</span><span class='macro'>!</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;{}&quot;</span>, <span class='ident'>err</span>).<span class='ident'>contains</span>(<span class='string'>&quot;does_not_exist&quot;</span>));
-    }
-
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_row_expiration</span>() {
-        <span class='kw'>let</span> <span class='ident'>db</span> <span class='op'>=</span> <span class='ident'>checked_memory_handle</span>();
-        <span class='ident'>db</span>.<span class='ident'>execute_batch</span>(<span class='string'>&quot;CREATE TABLE foo(x INTEGER)&quot;</span>).<span class='ident'>unwrap</span>();
-        <span class='ident'>db</span>.<span class='ident'>execute_batch</span>(<span class='string'>&quot;INSERT INTO foo(x) VALUES(1)&quot;</span>).<span class='ident'>unwrap</span>();
-        <span class='ident'>db</span>.<span class='ident'>execute_batch</span>(<span class='string'>&quot;INSERT INTO foo(x) VALUES(2)&quot;</span>).<span class='ident'>unwrap</span>();
-
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>stmt</span> <span class='op'>=</span> <span class='ident'>db</span>.<span class='ident'>prepare</span>(<span class='string'>&quot;SELECT x FROM foo ORDER BY x&quot;</span>).<span class='ident'>unwrap</span>();
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rows</span> <span class='op'>=</span> <span class='ident'>stmt</span>.<span class='ident'>query</span>(<span class='kw-2'>&amp;</span>[]).<span class='ident'>unwrap</span>();
-        <span class='kw'>let</span> <span class='ident'>first</span> <span class='op'>=</span> <span class='ident'>rows</span>.<span class='ident'>next</span>().<span class='ident'>unwrap</span>().<span class='ident'>unwrap</span>();
-        <span class='kw'>let</span> <span class='ident'>second</span> <span class='op'>=</span> <span class='ident'>rows</span>.<span class='ident'>next</span>().<span class='ident'>unwrap</span>().<span class='ident'>unwrap</span>();
-
-        <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>2i32</span>, <span class='ident'>second</span>.<span class='ident'>get</span>(<span class='number'>0</span>));
-
-        <span class='kw'>match</span> <span class='ident'>first</span>.<span class='ident'>get_checked</span>::<span class='op'>&lt;</span><span class='ident'>i32</span>, <span class='ident'>i32</span><span class='op'>&gt;</span>(<span class='number'>0</span>).<span class='ident'>unwrap_err</span>() {
-            <span class='ident'>Error</span>::<span class='ident'>GetFromStaleRow</span> <span class='op'>=&gt;</span> (),
-            <span class='ident'>err</span> <span class='op'>=&gt;</span> <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Unexpected error {}&quot;</span>, <span class='ident'>err</span>),
-        }
     }
 
     <span class='attribute'>#[<span class='ident'>test</span>]</span>

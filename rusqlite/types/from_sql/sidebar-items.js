@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["FromSql","A trait for types that can be created from a SQLite value."]]});

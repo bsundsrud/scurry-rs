@@ -231,13 +231,6 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>error</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>;
@@ -280,10 +273,6 @@
     <span class='doccomment'>/// Error when a query that was expected to return at least one row (e.g., for `query_row`)</span>
     <span class='doccomment'>/// did not return any.</span>
     <span class='ident'>QueryReturnedNoRows</span>,
-
-    <span class='doccomment'>/// Error when trying to access a `Row` after stepping past it. See the discussion on</span>
-    <span class='doccomment'>/// the `Rows` type for more details.</span>
-    <span class='ident'>GetFromStaleRow</span>,
 
     <span class='doccomment'>/// Error when the value of a particular column is requested, but the index is out of range</span>
     <span class='doccomment'>/// for the statement.</span>
@@ -346,7 +335,6 @@
                 <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Execute returned results - did you mean to call query?&quot;</span>)
             }
             <span class='ident'>Error</span>::<span class='ident'>QueryReturnedNoRows</span> <span class='op'>=&gt;</span> <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Query returned no rows&quot;</span>),
-            <span class='ident'>Error</span>::<span class='ident'>GetFromStaleRow</span> <span class='op'>=&gt;</span> <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Attempted to get a value from a stale row&quot;</span>),
             <span class='ident'>Error</span>::<span class='ident'>InvalidColumnIndex</span>(<span class='ident'>i</span>) <span class='op'>=&gt;</span> <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Invalid column index: {}&quot;</span>, <span class='ident'>i</span>),
             <span class='ident'>Error</span>::<span class='ident'>InvalidColumnName</span>(<span class='kw-2'>ref</span> <span class='ident'>name</span>) <span class='op'>=&gt;</span> <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Invalid column name: {}&quot;</span>, <span class='ident'>name</span>),
             <span class='ident'>Error</span>::<span class='ident'>InvalidColumnType</span> <span class='op'>=&gt;</span> <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;Invalid column type&quot;</span>),
@@ -378,7 +366,6 @@
                 <span class='string'>&quot;execute returned results - did you mean to call query?&quot;</span>
             }
             <span class='ident'>Error</span>::<span class='ident'>QueryReturnedNoRows</span> <span class='op'>=&gt;</span> <span class='string'>&quot;query returned no rows&quot;</span>,
-            <span class='ident'>Error</span>::<span class='ident'>GetFromStaleRow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;attempted to get a value from a stale row&quot;</span>,
             <span class='ident'>Error</span>::<span class='ident'>InvalidColumnIndex</span>(_) <span class='op'>=&gt;</span> <span class='string'>&quot;invalid column index&quot;</span>,
             <span class='ident'>Error</span>::<span class='ident'>InvalidColumnName</span>(_) <span class='op'>=&gt;</span> <span class='string'>&quot;invalid column name&quot;</span>,
             <span class='ident'>Error</span>::<span class='ident'>InvalidColumnType</span> <span class='op'>=&gt;</span> <span class='string'>&quot;invalid column type&quot;</span>,
@@ -404,12 +391,11 @@
             <span class='ident'>Error</span>::<span class='ident'>InvalidParameterName</span>(_) <span class='op'>|</span>
             <span class='ident'>Error</span>::<span class='ident'>ExecuteReturnedResults</span> <span class='op'>|</span>
             <span class='ident'>Error</span>::<span class='ident'>QueryReturnedNoRows</span> <span class='op'>|</span>
-            <span class='ident'>Error</span>::<span class='ident'>GetFromStaleRow</span> <span class='op'>|</span>
             <span class='ident'>Error</span>::<span class='ident'>InvalidColumnIndex</span>(_) <span class='op'>|</span>
             <span class='ident'>Error</span>::<span class='ident'>InvalidColumnName</span>(_) <span class='op'>|</span>
             <span class='ident'>Error</span>::<span class='ident'>InvalidColumnType</span> <span class='op'>|</span>
-            <span class='ident'>Error</span>::<span class='ident'>InvalidPath</span>(_) <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>,
-            <span class='ident'>Error</span>::<span class='ident'>StatementChangedRows</span>(_) <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>,
+            <span class='ident'>Error</span>::<span class='ident'>InvalidPath</span>(_) <span class='op'>|</span>
+            <span class='ident'>Error</span>::<span class='ident'>StatementChangedRows</span>(_) <span class='op'>|</span>
             <span class='ident'>Error</span>::<span class='ident'>StatementFailedToInsertRow</span> <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>,
 
             <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;functions&quot;</span>)]</span>

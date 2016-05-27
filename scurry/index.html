@@ -47,7 +47,7 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-0' class='srclink' href='../src/scurry/src/lib.rs.html#1-71' title='goto source code'>[src]</a></span></h1>
+               </span><a id='src-0' class='srclink' href='../src/scurry/src/lib.rs.html#1-72' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'>
 <h1 id='scurry' class='section-header'><a href='#scurry'>Scurry</a></h1>
 <p>Forward-only embeddable SQL migrations for Rust.  Supports Postgres and Sqlite via rust
@@ -75,7 +75,8 @@ latest) and call the <code>connection.migrate(DesiredVersion)</code> method.  Th
 <h3 id='migration-versioning' class='section-header'><a href='#migration-versioning'>Migration Versioning</a></h3>
 <p>Migrations in the migration directory are identified by a <code>.sql</code> extension.  The format of the
 filename is <code>&lt;version&gt;__&lt;name&gt;.sql</code>.  Note the double underscore.  The contents of the file
-will be executed in a transaction against the database.</p>
+will be executed in a transaction against the database.  Versions are treated as strings and
+will be run in ascending lexographical order.</p>
 
 <h3 id='version-hashing' class='section-header'><a href='#version-hashing'>Version Hashing</a></h3>
 <p>When migrations are applied, the contents are hashed and stored in the metadata table.  Before
@@ -128,6 +129,13 @@ method, which will re-write history as though all history matches up to the give
                                   title='scurry::from_postgres'>from_postgres</a></td>
                            <td class='docblock short'>
                                 <p>Creates a new connection for migrating Postgres databases</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.from_sqlite.html'
+                                  title='scurry::from_sqlite'>from_sqlite</a></td>
+                           <td class='docblock short'>
+                                <p>Creates a new connection for migrating SQLite databases</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>

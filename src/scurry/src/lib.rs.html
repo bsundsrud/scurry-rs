@@ -113,6 +113,7 @@
 <span id="69">69</span>
 <span id="70">70</span>
 <span id="71">71</span>
+<span id="72">72</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! # Scurry</span>
 <span class='doccomment'>//! Forward-only embeddable SQL migrations for Rust.  Supports Postgres and Sqlite via rust</span>
@@ -140,7 +141,8 @@
 <span class='doccomment'>//! ### Migration Versioning</span>
 <span class='doccomment'>//! Migrations in the migration directory are identified by a `.sql` extension.  The format of the</span>
 <span class='doccomment'>//! filename is `&lt;version&gt;__&lt;name&gt;.sql`.  Note the double underscore.  The contents of the file</span>
-<span class='doccomment'>//! will be executed in a transaction against the database.</span>
+<span class='doccomment'>//! will be executed in a transaction against the database.  Versions are treated as strings and</span>
+<span class='doccomment'>//! will be run in ascending lexographical order.</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! ### Version Hashing</span>
 <span class='doccomment'>//! When migrations are applied, the contents are hashed and stored in the metadata table.  Before</span>
