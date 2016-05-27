@@ -1,6 +1,8 @@
 # scurry-rs
 Standalone or embeddable forward-only SQL migration tool
 
+For documentation on embedding Scurry, see the library documentation [here](http://bsundsrud.github.io/scurry-rs/scurry).
+
 ```
 Scurry CLI
 Forward-only migrations for Postgres and Sqlite
