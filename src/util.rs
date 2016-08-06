@@ -24,7 +24,7 @@ fn get_name_and_version(path: &Path) -> Result<(String, String), ScurryError> {
             if remaining.is_empty() {
                 return Err(ScurryError::Parse("Invalid version and name; separate version and \
                                                name with '__'"
-                                                  .into()));
+                    .into()));
             }
             let name = remaining.join("__");
             Ok((version, name))
@@ -45,19 +45,19 @@ fn hash_file_contents(path: &Path) -> Result<String, IoError> {
     try!(f.read_to_end(&mut buffer));
     let mut m = sha1::Sha1::new();
     m.update(&buffer);
-    Ok(m.hexdigest())
+    Ok(m.digest().to_string())
 }
 
 pub fn calculate_available_versions(migrations_dir: &str) -> Result<Vec<Version>, ScurryError> {
     let all_paths = try!(fs::read_dir(migrations_dir));
     let sql_files = all_paths.filter_map(|dirent| dirent.ok())
-                             .map(|dirent| dirent.path())
-                             .filter(|path| {
-                                 match path.extension() {
-                                     None => false,
-                                     Some(s) => s == "sql",
-                                 }
-                             });
+        .map(|dirent| dirent.path())
+        .filter(|path| {
+            match path.extension() {
+                None => false,
+                Some(s) => s == "sql",
+            }
+        });
     let mut res = vec![];
     for file in sql_files {
         let hash = try!(hash_file_contents(&file));
@@ -82,21 +82,21 @@ pub fn choose_upgrade_path<'a>(available: &'a [Version],
                                desired: &DesiredVersion)
                                -> Vec<&'a Version> {
     available.iter()
-             .filter(|v| {
-                 if let Some(ref installed_vers) = *installed {
-                     &v.version > &installed_vers.script_version
-                 } else {
-                     true
-                 }
-             })
-             .filter(|v| {
-                 if let DesiredVersion::Specific(ref s) = *desired {
-                     &v.version <= s
-                 } else {
-                     true
-                 }
-             })
-             .collect::<Vec<_>>()
+        .filter(|v| {
+            if let Some(ref installed_vers) = *installed {
+                &v.version > &installed_vers.script_version
+            } else {
+                true
+            }
+        })
+        .filter(|v| {
+            if let DesiredVersion::Specific(ref s) = *desired {
+                &v.version <= s
+            } else {
+                true
+            }
+        })
+        .collect::<Vec<_>>()
 
 }
 
@@ -134,7 +134,9 @@ pub enum HistoryDifferences {
     VersionMismatch(Version),
 }
 
-pub fn get_history_differences(available: &[Version], installed: &[ScurryMetadata]) -> Vec<HistoryDifferences> {
+pub fn get_history_differences(available: &[Version],
+                               installed: &[ScurryMetadata])
+                               -> Vec<HistoryDifferences> {
     let mut results = vec![];
     let mut inst = installed.iter();
     for a in available {

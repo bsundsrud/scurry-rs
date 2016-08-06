@@ -7,7 +7,7 @@ authors = ["bsundsrud <benn.sundsrud@gmail.com>"]
 name = "scurry"
 
 [dependencies]
-scurry = { path = "../scurry", features = ["postgres", "sqlite"] }
+scurry = { path = "..", features = ["postgres", "sqlite"] }
 postgres = { version = "*", features = ["openssl"] }
 rusqlite = { git = "https://github.com/jgallagher/rusqlite" }
 log = "*"
