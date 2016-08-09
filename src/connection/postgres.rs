@@ -1,6 +1,6 @@
 use postgres::Connection;
 use postgres::rows::Row;
-use postgres::error::{Error as PgError};
+use postgres::error::Error as PgError;
 use error::ScurryError;
 use models::ScurryMetadata;
 use versions::{Version, DesiredVersion};
@@ -23,9 +23,11 @@ CREATE TABLE _scurry (
     script_version TEXT NOT NULL
 );";
 
-const INSERT_HISTORY_LINE: &'static str = "INSERT INTO _scurry(script_hash, script_name, script_version) values($1, $2, $3);";
+const INSERT_HISTORY_LINE: &'static str = "INSERT INTO _scurry(script_hash, script_name, \
+                                           script_version) values($1, $2, $3);";
 
-const GET_ALL_REVISIONS: &'static str = "SELECT id, migration_date, script_hash, script_name, script_version FROM _scurry ORDER BY script_version ASC;";
+const GET_ALL_REVISIONS: &'static str = "SELECT id, migration_date, script_hash, script_name, \
+                                         script_version FROM _scurry ORDER BY script_version ASC;";
 
 const ACQUIRE_LOCK: &'static str = "LOCK TABLE _scurry IN ACCESS EXCLUSIVE MODE;";
 
@@ -33,7 +35,7 @@ const DELETE_HISTORY: &'static str = "DELETE FROM _scurry;";
 
 pub struct Postgres {
     conn: Connection,
-    migrations_dir: String
+    migrations_dir: String,
 }
 pub fn establish(conn: Connection, migrations_dir: &str) -> Postgres {
     Postgres {
@@ -53,24 +55,28 @@ fn history_table_exists(xact: &Transaction) -> Result<bool, ScurryError> {
 
 fn write_history_line(xact: &Transaction, version: &Version) -> Result<(), ScurryError> {
     try!(xact.execute(INSERT_HISTORY_LINE,
-                           &[&version.hash, &version.name, &version.version]));
+                      &[&version.hash, &version.name, &version.version]));
     Ok(())
 }
 
 fn lock_table(xact: &Transaction) -> Result<(), ScurryError> {
-    let exists = try!(history_table_exists(xact));
-    if !exists {
-        try!(create_metadata_table(xact));
-    }
     try!(xact.execute(ACQUIRE_LOCK, &[]));
     info!("Locked table for updating");
     Ok(())
 }
 
 fn create_metadata_table(xact: &Transaction) -> Result<(), ScurryError> {
-    try!(xact.batch_execute(CREATE_METADATA_TABLE));
-    info!("Metadata table created");
+    let exists = try!(history_table_exists(xact));
+    if !exists {
+        try!(xact.batch_execute(CREATE_METADATA_TABLE));
+        info!("Metadata table created");
+    }
     Ok(())
+}
+
+fn get_history(xact: &Transaction) -> Result<Vec<ScurryMetadata>, ScurryError> {
+    let revisions_query = try!(xact.query(GET_ALL_REVISIONS, &[]));
+    Ok(revisions_query.iter().map(ScurryMetadata::from).collect::<Vec<_>>())
 }
 
 fn clear_history_table(xact: &Transaction) -> Result<(), ScurryError> {
@@ -93,7 +99,10 @@ impl ScurryConnection for Postgres {
     fn migrate(&mut self, desired_version: DesiredVersion) -> Result<usize, ScurryError> {
         let versions = try!(util::calculate_available_versions(&self.migrations_dir));
         info!("Found {} migrations", versions.len());
-        let history = try!(self.get_history());
+        let xact = try!(self.conn.transaction());
+        try!(create_metadata_table(&xact));
+        try!(lock_table(&xact));
+        let history = try!(get_history(&xact));
         try!(util::verify_common_history(&versions, &history));
         let latest_version = history.iter().last();
         match latest_version {
@@ -104,8 +113,7 @@ impl ScurryConnection for Postgres {
                 info!("Schema at version {}", rev.script_version);
             }
         }
-        let xact = try!(self.conn.transaction());
-        try!(lock_table(&xact));
+
         let upgrade_path = util::choose_upgrade_path(&versions, &latest_version, &desired_version);
         let upgrade_len = upgrade_path.len();
         info!("Applying {} migrations", upgrade_len);
