@@ -7,7 +7,7 @@ authors = ["bsundsrud <benn.sundsrud@gmail.com>"]
 name = "scurry"
 
 [dependencies]
-postgres = { version = "*", features = ["chrono"], optional = true }
+postgres = { version = "0.13.5", features = ["with-chrono"], optional = true }
 rusqlite = { git = "https://github.com/jgallagher/rusqlite", features = ["chrono"], optional = true }
 chrono = "*"
 log = "*"
